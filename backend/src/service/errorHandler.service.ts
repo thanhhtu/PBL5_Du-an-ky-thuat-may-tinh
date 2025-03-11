@@ -54,4 +54,8 @@ async function errorHandlerFunc<T>(func: (() => Promise<T>)): Promise<T> {
   }
 }
 
-export { errorHandlerRes, errorInfo, errorHandlerFunc };
+export { 
+  errorHandlerRes, 
+  errorInfo, 
+  errorHandlerFunc 
+};

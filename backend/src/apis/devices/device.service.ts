@@ -7,14 +7,14 @@ import { IDevice, IDeviceLog } from '../../types/device.interface';
 import { DeviceLog } from '../../database/entities/DeviceLog';
 import deviceLogRepo from '../../database/repositories/deviceLog.repo';
 import { DeviceState } from '../../types/device.enum';
-import { io } from '../..';
+import { getIO } from '../../config/socket.config';
 
 class DeviceService{
   async deviceInfo(device: Device): Promise<IDevice>{
     return {
       id: Number(device.id),
       name: device.name,
-      label: device.name,
+      label: device.label,
       image: device.image,
       state: device.state,
       createdAt: device.createdAt,
@@ -58,7 +58,7 @@ class DeviceService{
         throw new CustomError(StatusCodes.NOT_FOUND, 'Image not found'); 
       }
 
-      deviceData.image = `./backend/src/public/upload/${img.filename}`;
+      deviceData.image = img.filename;
 
       const device = await deviceRepo.create(deviceData);
       return this.deviceInfo(device);
@@ -93,7 +93,7 @@ class DeviceService{
 
   async updateDeviceState(id: number, state: DeviceState, ipAddress: string | null): Promise<IDevice>{
     return errorHandlerFunc(async () => {
-      this.getDeviceById(id);
+      await this.getDeviceById(id);
 
       const updateDevice = await deviceRepo.updateState(id, state, ipAddress);
 
@@ -101,6 +101,7 @@ class DeviceService{
         throw new CustomError(StatusCodes.NOT_FOUND, 'Device not found');
       }
 
+      const io = getIO();
       io.emit('device_state_changed', updateDevice);
 
       return this.deviceInfo(updateDevice);

@@ -5,9 +5,8 @@ import DeviceCard from './DeviceCard';
 import { Device, DeviceState } from '../types';
 import axios from 'axios';
 import { io } from 'socket.io-client';
-import { API_BASE_URL } from '@env';
 
-const socket = io(API_BASE_URL);
+const socket = io(process.env.EXPO_PUBLIC_API_BASE_URL);
 
 const DeviceSection = () => {
   const [devices, setDevices] = useState<Device[]>([]);
@@ -18,7 +17,7 @@ const DeviceSection = () => {
   const fetchDevices = async() => {
     try{
       setLoading(true);
-      const res = await axios.get(`${API_BASE_URL}/devices`);
+      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/devices`);
       if(res.data.success){
         setDevices(res.data.data);
       }else{
@@ -32,42 +31,48 @@ const DeviceSection = () => {
   };
 
   // Toggle device sate
-  const handleDeviceToggle = async(id: number, isActive: boolean) => {
-    const newState = isActive ? DeviceState.ON : DeviceState.OFF;
+  const handleDeviceToggle = async(id: number, newState: DeviceState) => {
+    try {
+      // // Update UI immediately
+      // setDevices((preDevices) => 
+      //   preDevices.map((device) => 
+      //     device.id === id 
+      //     ? {...device, state: newState}
+      //     : device
+      //   )
+      // );
 
-    try{
-      const res = await axios.patch(`${API_BASE_URL}/devices/${id}/state`, {
+      const res = await axios.patch(`${process.env.EXPO_PUBLIC_API_BASE_URL}/devices/${id}/state`, {
         state: newState
       });
 
-      if(res.data.success){
-        console.log(`Device ${id} toggled to ${isActive ? 'ON' : 'OFF'}`);
-      }else{
+      if(!res.data.success) {
         fetchDevices();
       }
-    }catch(error){
+
+      console.log(`Device ${id} toggled to ${newState}`);
+    } catch(error) {
       fetchDevices();
     }
-
-    setDevices(prevDevices => 
-      prevDevices.map(device => 
-        device.id === id ? { ...device, isActive } : device
-      )
-    );
   };
 
   useEffect(() => {
     fetchDevices();
 
     socket.on('device_state_changed', (updatedDevice: Device) => {
-      setDevices(prevDevice => 
-        prevDevice.map(device => device.id === updatedDevice.id ? updatedDevice : device)
-      )
+      console.log('Client connected socket')
+      setDevices((preDevices) => 
+        preDevices.map((device) => 
+          device.id === updatedDevice.id
+          ? updatedDevice
+          : device
+        )
+      );
     });
 
     return () => {
       socket.off('device_state_changed');
-    }
+    };
   }, []);
 
   if (loading) {
@@ -108,64 +113,14 @@ const DeviceSection = () => {
             <DeviceCard 
               key={device.id} 
               device={device}
-              onToggle={(id, newState) => handleDeviceToggle(id, newState === DeviceState.ON)}
+              onToggle={handleDeviceToggle}
             />
           ))}
         </View>
       )}
     </View>
   );
-
-  // return (
-  //   <View style={styles.container}>
-  //     <View style={styles.header}>
-  //       <Text style={styles.title}>Smart Devices</Text>
-  //       <TouchableOpacity>
-  //         <Text style={styles.seeAll}>See All</Text>
-  //       </TouchableOpacity>
-  //     </View>
-      
-  //     <View style={styles.devicesGrid}>
-  //       {devices.map((device) => (
-  //         <DeviceCard 
-  //           key={device.id} 
-  //           device={{
-  //             ...device,
-  //             onToggle: handleDeviceToggle
-  //           }} 
-  //         />
-  //       ))}
-  //     </View>
-  //   </View>
-  // );
 };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     marginBottom: 24,
-//     paddingHorizontal: 20,
-//   },
-//   header: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     marginBottom: 20,
-//   },
-//   title: {
-//     fontSize: 20,
-//     fontWeight: 'bold',
-//     color: COLORS.text,
-//   },
-//   seeAll: {
-//     fontSize: 15,
-//     color: COLORS.primary,
-//   },
-//   devicesGrid: {
-//     flexDirection: 'row',
-//     flexWrap: 'wrap',
-//     justifyContent: 'space-between',
-//   },
-// });
 
 const styles = StyleSheet.create({
   container: {

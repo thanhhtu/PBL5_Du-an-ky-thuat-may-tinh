@@ -13,25 +13,25 @@ async function deviceSeeder(){
     {
       name: DeviceName.DOOR,
       label: 'Huge Austdoor',
-      image: './backend/src/public/upload/door.png',
+      image: 'door.png',
       state: DeviceState.OFF,
     },
     {
       name: DeviceName.CURTAIN,
       label: 'Modero Curtain',
-      image: './backend/src/public/upload/curtain.png',
+      image: 'curtain.png',
       state: DeviceState.OFF,
     },
     {
       name: DeviceName.FAN,
       label: 'Panasonic',
-      image: './backend/src/public/upload/fan.png',
+      image: 'fan.png',
       state: DeviceState.OFF,
     },
     {
       name: DeviceName.LIGHT,
       label: 'Zumtobel',
-      image: './backend/src/public/upload/light.png',
+      image: 'light.png',
       state: DeviceState.OFF,
     },
   ];

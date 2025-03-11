@@ -1,9 +1,8 @@
 import axios from 'axios';
-import { API_BASE_URL } from '@env';
 import { Device, DeviceLog, DeviceState } from '@/app/types';
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: process.env.EXPO_PUBLIC_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -14,11 +13,13 @@ class DeviceService{
     try{
       const res = await api.get('/devices');
       if(!res.data.success){
+        console.log('error: service-success: ', res.data.success);
         throw new Error('Failed to fetch data');
       }
 
       return res.data.data;
     }catch(error){
+      console.log('error: service: ', error);
       throw error;
     }
   }
