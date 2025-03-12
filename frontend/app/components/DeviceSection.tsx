@@ -33,14 +33,14 @@ const DeviceSection = () => {
   // Toggle device sate
   const handleDeviceToggle = async(id: number, newState: DeviceState) => {
     try {
-      // // Update UI immediately
-      // setDevices((preDevices) => 
-      //   preDevices.map((device) => 
-      //     device.id === id 
-      //     ? {...device, state: newState}
-      //     : device
-      //   )
-      // );
+      // Update UI immediately
+      setDevices((preDevices) => 
+        preDevices.map((device) => 
+          device.id === id 
+          ? {...device, state: newState}
+          : device
+        )
+      );
 
       const res = await axios.patch(`${process.env.EXPO_PUBLIC_API_BASE_URL}/devices/${id}/state`, {
         state: newState

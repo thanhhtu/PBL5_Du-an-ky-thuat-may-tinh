@@ -8,6 +8,8 @@ import { DeviceLog } from '../../database/entities/DeviceLog';
 import deviceLogRepo from '../../database/repositories/deviceLog.repo';
 import { DeviceState } from '../../types/device.enum';
 import { getIO } from '../../config/socket.config';
+import controlIoTService from '../../service/controlIoT.service';
+ '../../service/controlIoT.service';
 
 class DeviceService{
   async deviceInfo(device: Device): Promise<IDevice>{
@@ -103,6 +105,9 @@ class DeviceService{
 
       const io = getIO();
       io.emit('device_state_changed', updateDevice);
+
+      //iot
+      await controlIoTService.controlDevice(id, state);
 
       return this.deviceInfo(updateDevice);
     });
