@@ -26,7 +26,7 @@ route.delete('/:id',
   deviceController.deleteDevice
 );
 
-route.patch('/:id/state', 
+route.patch('/state/:id', 
   urlValidateMiddleware.id,
   validateMiddleware.updateDeviceStateBody,
   deviceController.updateDeviceState

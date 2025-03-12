@@ -8,6 +8,7 @@ import { DeviceLog } from '../../database/entities/DeviceLog';
 import deviceLogRepo from '../../database/repositories/deviceLog.repo';
 import { DeviceState } from '../../types/device.enum';
 import { getIO } from '../../config/socket.config';
+import axios from 'axios';
 
 class DeviceService{
   async deviceInfo(device: Device): Promise<IDevice>{
@@ -104,8 +105,18 @@ class DeviceService{
       const io = getIO();
       io.emit('device_state_changed', updateDevice);
 
+      try {
+        const espUrl = `http://192.168.231.73/control?id=${id}&state=${state.toLowerCase()}`;
+        console.log(espUrl); // Ví dụ: "http://192.168.2.102/control?id=1&state=on"
+        
+        await axios.get(espUrl, { timeout: 3000 });
+        console.log(`Đã gửi request đến ${espUrl}`);
+    } catch (error) {
+        console.error(`Lỗi gửi request đến ESP8266: ${(error as Error).message}`);
+    }
       return this.deviceInfo(updateDevice);
     });
+
   }
 }
 
