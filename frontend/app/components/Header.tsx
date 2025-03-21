@@ -1,13 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ImageSourcePropType } from 'react-native';
-import { COLORS } from '../constants/colors';
+import { COLORS, FONTSIZE } from '../constants/colors';
 import { HeaderProps } from '../types';
+import weatherService from '../services/weather.service';
 
 const Header: React.FC<HeaderProps> = ({ user, onRightIconPress }) => {
+  const [time, setTime] = useState('');
+
+  useEffect(() => {
+    const unsubscribe = weatherService.onTimeOfDateChange((time) => {
+      setTime(time);
+    });
+
+    // Cleanup
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   return (
     <View style={styles.container}>
       <View  style={styles.greetingUser}>
-        <Text style={styles.greeting}>Good Morning,</Text>
+        <Text style={styles.greeting}>Good {time},</Text>
         <Text style={styles.user}>{ user }</Text>
       </View>
       
@@ -22,8 +36,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 15,
   },
 
   greetingUser: {
@@ -31,17 +45,15 @@ const styles = StyleSheet.create({
   },
 
   greeting: {
-    fontSize: 24,
+    fontSize: FONTSIZE.small,
     fontWeight: 'bold',
-    color: COLORS.text,
-    marginBottom: 5,
+    color: COLORS.gray,
   },
 
   user: {
-    fontSize: 18,
+    fontSize: FONTSIZE.huge,
     fontWeight: 'bold',
-    color: COLORS.text,
-    marginBottom: 15,
+    color: COLORS.black,
   },
 
   iconButton: {

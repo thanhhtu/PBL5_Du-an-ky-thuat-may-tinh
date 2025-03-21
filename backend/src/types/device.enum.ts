@@ -9,8 +9,8 @@ export enum DeviceAction {
 }
 
 export enum DeviceName {
-  DOOR = 'door',
-  CURTAIN = 'curtain',
-  FAN = 'fan',
-  LIGHT = 'light',
+  DOOR = 'Smart Door',
+  CURTAIN = 'Smart Curtain',
+  FAN = 'Smart Fan',
+  LIGHT = 'Smart Light',
 }

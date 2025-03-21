@@ -1,60 +1,63 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
-import { COLORS } from '../constants/colors';
-import { WeatherData } from '../types';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { COLORS, FONTSIZE } from '../constants/colors';
+import weatherService from '../services/weather.service';
 
 const WeatherWidget = () => {
-  // Fetch from API
-  const weatherData: WeatherData = {
-    date: 'May 18, 2023 10:07 am',
-    condition: 'Cloudy',
-    location: 'Jakarta, Indonesia',
-    temperature: '19°C',
-    humidity: '97%',
-    visibility: '7km',
-    wind: '3km/h NE Wind',
+  const [location, setLocation] = useState('');
+  const [date, setDate] = useState('');
+
+  useEffect(() => {
+    const unsubscribeLocationChange = weatherService.onLocationChange((loc) => {
+      setLocation(loc);
+    });
+
+    const unsubscribeDateChange = weatherService.onDateChange((date) => {
+      setDate(date);
+    });
+
+    // Cleanup
+    return () => {
+      unsubscribeLocationChange();
+      unsubscribeDateChange();
+    };
+  }, []);
+
+  // mock date
+  const data = {
+    temperature: '20',
+    temperatureLevel: 'Medium',
+
+    humidity: '65%',
+    humidityLevel: 'Normal'
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.mainInfo}>
-        <View>
-          <Text style={styles.date}>{weatherData.date}</Text>
-          <Text style={styles.condition}>{weatherData.condition}</Text>
-          <Text style={styles.location}>{weatherData.location}</Text>
+      <View style={styles.header}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>In </Text>
+          <Text style={styles.titleHighlight}>{location}</Text>
         </View>
-        <View style={styles.temperatureContainer}>
-          <Text style={styles.temperature}>{weatherData.temperature}</Text>
-          <View style={styles.weatherIcon}>
-            {/* Replace with actual weather icon */}
-            <View style={styles.iconPlaceholder}>
-              <Text style={styles.iconText}>☀️</Text>
-            </View>
-          </View>
-        </View>
+        <Text style={styles.date}>{date}</Text>
       </View>
       
-      <View style={styles.detailsContainer}>
-        <View style={styles.detailItem}>
-          <Text style={styles.detailIcon}>💧</Text>
-          <Text style={styles.detailLabel}>Humidity</Text>
-          <Text style={styles.detailValue}>{weatherData.humidity}</Text>
+      <View style={styles.divider} />
+      
+      <View style={styles.content}>
+        <View style={styles.leftSection}>
+          <Text style={[styles.label, styles.temperatureLabel]}>Temperature</Text>
+          <View style={styles.temperatureContainer}>
+            <Text style={styles.value}>{data.temperature}</Text>
+            <Text style={[styles.value, styles.degree]}>°</Text>
+          </View>
+          <Text style={[styles.level, styles.temperatureLevel]}>{data.temperatureLevel}</Text>
         </View>
         
-        <View style={styles.divider} />
-        
-        <View style={styles.detailItem}>
-          <Text style={styles.detailIcon}>👁️</Text>
-          <Text style={styles.detailLabel}>Visibility</Text>
-          <Text style={styles.detailValue}>{weatherData.visibility}</Text>
-        </View>
-        
-        <View style={styles.divider} />
-        
-        <View style={styles.detailItem}>
-          <Text style={styles.detailIcon}>💨</Text>
-          <Text style={styles.detailLabel}>Wind</Text>
-          <Text style={styles.detailValue}>{weatherData.wind}</Text>
+        <View style={styles.rightSection}>
+          <Text style={[styles.label, styles.humidityLabel]}>Humidity</Text>
+          <Text style={[styles.value, styles.humidityValue]}>{data.humidity}</Text>
+          <Text style={[styles.level, styles.humidityLevel]}>{data.humidityLevel}</Text>
         </View>
       </View>
     </View>
@@ -63,95 +66,116 @@ const WeatherWidget = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.cardBackground,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 20,
+    backgroundColor: COLORS.white,
+    borderRadius: 24,
+    padding: 20,
+    margin: 15,
+    shadowColor: COLORS.gray,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 10,
   },
   
-  mainInfo: {
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    alignItems: 'center',
   },
-
-  date: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginBottom: 4,
+  
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-
-  condition: {
-    fontSize: 16,
+  
+  title: {
+    fontSize: FONTSIZE.huge,
     fontWeight: 'bold',
-    color: COLORS.text,
-    marginBottom: 4,
+    color: COLORS.black,
+  },
+  
+  titleHighlight: {
+    fontSize: FONTSIZE.huge,
+    fontWeight: 'bold',
+    color: COLORS.yellow,
+  },
+  
+  date: {
+    fontSize: FONTSIZE.small,
+    color: COLORS.gray,
+  },
+  
+  divider: {
+    height: 1,
+    backgroundColor: COLORS.lightGray,
+    marginVertical: 15,
+  },
+  
+  content: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  
+  leftSection: {
+    // flex: 1,
+    width: '50%',
   },
 
-  location: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
+  rightSection: {
+    flex: 1,
+    backgroundColor: COLORS.green,
+    borderRadius: 24,
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  label: {
+    fontSize: FONTSIZE.medium,
   },
 
+  temperatureLabel: {
+    color: COLORS.gray,
+  },
+
+  humidityLabel: {
+    color: COLORS.white,
+  },
+
+  value: {
+    fontSize: FONTSIZE.xLarge,
+    fontWeight: 'bold',
+  },
+  
   temperatureContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+  },
+  
+  degree: {
+    color: COLORS.black,
+    lineHeight: 50,
   },
 
-  temperature: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: COLORS.text,
+  humidityValue: {
+    color: COLORS.white,
   },
 
-  weatherIcon: {
-    marginLeft: 8,
+  level: {
+    fontSize: FONTSIZE.medium,
+    marginTop: 5,
   },
-
-  iconPlaceholder: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+  
+  temperatureLevel: {
+    color: COLORS.yellow, 
   },
-
-  iconText: {
-    fontSize: 24,
-  },
-
-  detailsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.divider,
-  },
-
-  detailItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-
-  detailIcon: {
-    fontSize: 16,
-    marginBottom: 4,
-  },
-
-  detailLabel: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginBottom: 4,
-  },
-
-  detailValue: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.text,
-  },
-
-  divider: {
-    width: 1,
-    backgroundColor: COLORS.divider,
+  
+  humidityLevel: {
+    color: COLORS.white,
   },
 });
 

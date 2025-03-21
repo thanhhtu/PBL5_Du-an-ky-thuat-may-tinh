@@ -9,7 +9,7 @@ import deviceLogRepo from '../../database/repositories/deviceLog.repo';
 import { DeviceState } from '../../types/device.enum';
 import { getIO } from '../../config/socket.config';
 import controlIoTService from '../../service/controlIoT.service';
- '../../service/controlIoT.service';
+import deviceSocket from '../../socket/device.socket';
 
 class DeviceService{
   async deviceInfo(device: Device): Promise<IDevice>{
@@ -103,11 +103,10 @@ class DeviceService{
         throw new CustomError(StatusCodes.NOT_FOUND, 'Device not found');
       }
 
-      const io = getIO();
-      io.emit('device_state_changed', updateDevice);
+      await deviceSocket.emitDeviceStateChange(updateDevice);
 
-      //iot
-      await controlIoTService.controlDevice(id, state);
+      // //iot
+      // await controlIoTService.controlDevice(id, state);
 
       return this.deviceInfo(updateDevice);
     });

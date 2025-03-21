@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { DeviceCardProps, DeviceState } from '../types';
+import { COLORS, FONTSIZE } from '../constants/colors';
 
 const DeviceCard: React.FC<DeviceCardProps> = ({ device, onToggle }) => {
   const isActive = device.state === DeviceState.ON;
@@ -15,11 +16,14 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onToggle }) => {
       isActive ? styles.activeContainer : styles.inactiveContainer
     ]}>
       <View style={styles.subContainer}>
-        <View style={styles.iconContainer}>
+        <View style={[
+          styles.iconContainer,
+          isActive ? styles.activeIconContainer : styles.inactiveIconContainer
+        ]}>
           <Image 
             source={{ uri: `${process.env.EXPO_PUBLIC_API_BASE_URL}/${device.image}` }} 
             style={styles.icon} 
-            resizeMode="contain" 
+            resizeMode='contain' 
           />
         </View>
         
@@ -41,8 +45,18 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onToggle }) => {
       </View>
 
       <View style={styles.contentContainer}>
-        <Text style={styles.name}>{device.name}</Text>
-        <Text style={styles.label}>{device.label}</Text>
+        <Text style={[
+          styles.name,
+          isActive ? styles.activeName : styles.inactiveName
+        ]}>
+          {device.name}
+        </Text>
+        <Text style={[
+          styles.label,
+          isActive ? styles.activeLabel : styles.inactiveLabel
+        ]}>
+          {device.label}
+        </Text>
       </View>
     </View>
   );
@@ -51,39 +65,43 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onToggle }) => {
 const styles = StyleSheet.create({
   container: {
     borderRadius: 16,
-    padding: 20,
+    padding: 17,
     height: 150,
     marginBottom: 20,
-    // flexDirection: 'row',
-    // alignItems: 'center',
-    width: '47%', // Slightly smaller to ensure proper spacing
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    width: '47%', 
+    borderWidth: 1,
   },
+
   activeContainer: {
-    backgroundColor: '#F9BA59', // Orange/yellow for Smart AC
+    backgroundColor: COLORS.yellow, 
+    borderColor: COLORS.yellow, 
   },
+
   inactiveContainer: {
-    backgroundColor: '#FFFFFF', // White for inactive/Smart TV
+    backgroundColor: COLORS.white, 
+    borderColor: COLORS.lightGray,
   },
+
+  subContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
   iconContainer: {
     width: 48,
     height: 48,
-    borderRadius: 10,
-    backgroundColor: '#FFFFFF',
+    borderRadius: 10,    
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
 
-  subContainer: {
-    flexDirection: 'row',
+  activeIconContainer: {
+    backgroundColor: COLORS.white,
+  },
+
+  inactiveIconContainer: {
+    backgroundColor: COLORS.lightYellow,
   },
 
   icon: {
@@ -91,61 +109,75 @@ const styles = StyleSheet.create({
     height: 28,
   },
 
-  contentContainer: {
-    // flex: 2,
-    // marginRight: 8,
-  },
-
-  name: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: '#000000',
-    marginBottom: 4,
-  },
-
-  label: {
-    fontSize: 14,
-    color: '#666666',
-  },
-
   toggleContainer: {
-    width: 48,
+    width: 38,
     height: 24,
     justifyContent: 'center',
   },
 
   toggleTrack: {
-    width: 44,
-    height: 24,
+    width: 33,
+    height: 18,
     borderRadius: 12,
     justifyContent: 'center',
   },
 
   activeToggleTrack: {
-    backgroundColor: '#D9F9FE', // Light blue background for active track
+    backgroundColor: COLORS.white, 
   },
 
   inactiveToggleTrack: {
-    backgroundColor: '#E0E0E0', // Light gray for inactive track
+    backgroundColor: COLORS.lightGray,
   },
 
   toggleThumb: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    width: 23,
+    height: 23,
+    borderRadius: 11.5,
+    borderWidth: 1.5,
     position: 'absolute',
   },
 
   activeToggleThumb: {
-    backgroundColor: '#56D9E9', // Teal color for active toggle
-    right: 3,
+    backgroundColor: COLORS.green,
+    right: -3,
+    borderColor: COLORS.white,
   },
 
   inactiveToggleThumb: {
-    backgroundColor: '#FFFFFF', // White thumb for inactive toggle
-    left: 3,
-    borderWidth: 0.5,
-    borderColor: '#CCCCCC',
+    backgroundColor: COLORS.white,
+    left: -3,
+    borderColor: COLORS.lightGray,
+  },
+
+  contentContainer: {
+    marginTop: 16,
+  },
+
+  name: {
+    fontSize: FONTSIZE.medium,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+
+  label: {
+    fontSize: FONTSIZE.tiny,
+  },
+
+  activeName: {
+    color: COLORS.white,
+  },
+
+  inactiveName: {
+    color: COLORS.black, 
+  },
+
+  activeLabel: {
+    color: COLORS.white,
+  },
+
+  inactiveLabel: {
+    color: COLORS.gray, 
   },
 });
 

@@ -51,7 +51,10 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: -2 },
+    shadowOffset: { 
+      width: 0, 
+      height: -2 
+    },
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 10,
@@ -80,27 +83,31 @@ const styles = StyleSheet.create({
 
   activeIcon: {
     opacity: 1,
+    tintColor: COLORS.lightGreen
   },
 
   micButton: {
     width: 65,
     height: 65,
     borderRadius: 30,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.green,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: COLORS.darkGreen,
+    shadowOffset: { 
+      width: 0, 
+      height: 4 
+    },
     shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
+    shadowRadius: 8,
+    elevation: 10,
     marginBottom: 30,
   },
 
   micIcon: {
     width: 20,
     height: 30,
-    tintColor: COLORS.primary,
+    tintColor: COLORS.white,
   },
 });
 

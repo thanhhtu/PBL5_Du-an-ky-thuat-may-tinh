@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { COLORS } from '../constants/colors';
+import { COLORS, FONTSIZE } from '../constants/colors';
 import DeviceCard from './DeviceCard';
 import { Device, DeviceState } from '../types';
-import axios from 'axios';
-import { io } from 'socket.io-client';
-
-const socket = io(process.env.EXPO_PUBLIC_API_BASE_URL);
+import deviceService from '../services/device.service';
 
 const DeviceSection = () => {
   const [devices, setDevices] = useState<Device[]>([]);
@@ -17,14 +14,16 @@ const DeviceSection = () => {
   const fetchDevices = async() => {
     try{
       setLoading(true);
-      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/devices`);
-      if(res.data.success){
-        setDevices(res.data.data);
-      }else{
-        setError('Failed to fetch data');
-      }
+      
+      const devices = await deviceService.getAllDevices();
+      setDevices(devices);
+      setError(null);
     }catch(error){
-      setError('Network error when fetching devices');
+      if (error instanceof Error) {
+        setError(error.message || 'Network error when fetching devices');
+      } else {
+        setError('An unknown error occurred');
+      }
     }finally{
       setLoading(false);
     }
@@ -33,25 +32,25 @@ const DeviceSection = () => {
   // Toggle device sate
   const handleDeviceToggle = async(id: number, newState: DeviceState) => {
     try {
-      // Update UI immediately
-      setDevices((preDevices) => 
-        preDevices.map((device) => 
-          device.id === id 
-          ? {...device, state: newState}
-          : device
-        )
-      );
+      // // Update UI immediately
+      // setDevices((preDevices) => 
+      //   preDevices.map((device) => 
+      //     device.id === id 
+      //     ? {...device, state: newState}
+      //     : device
+      //   )
+      // );
 
-      const res = await axios.patch(`${process.env.EXPO_PUBLIC_API_BASE_URL}/devices/${id}/state`, {
-        state: newState
-      });
-
-      if(!res.data.success) {
-        fetchDevices();
-      }
+      await deviceService.updateDeviceState(id, newState);
 
       console.log(`Device ${id} toggled to ${newState}`);
     } catch(error) {
+      if (error instanceof Error) {
+        setError(error.message || 'Network error when fetching devices');
+      } else {
+        setError('An unknown error occurred');
+      }
+
       fetchDevices();
     }
   };
@@ -59,10 +58,9 @@ const DeviceSection = () => {
   useEffect(() => {
     fetchDevices();
 
-    socket.on('device_state_changed', (updatedDevice: Device) => {
-      console.log('Client connected socket')
-      setDevices((preDevices) => 
-        preDevices.map((device) => 
+    const unsubscribe = deviceService.onDeviceStateChange((updatedDevice) => {
+      setDevices((prevDevices) => 
+        prevDevices.map((device) => 
           device.id === updatedDevice.id
           ? updatedDevice
           : device
@@ -70,15 +68,16 @@ const DeviceSection = () => {
       );
     });
 
+    // Cleanup
     return () => {
-      socket.off('device_state_changed');
+      unsubscribe();
     };
   }, []);
 
   if (loading) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size='large' color={COLORS.yellow} />
       </View>
     );
   }
@@ -99,7 +98,7 @@ const DeviceSection = () => {
       <View style={styles.header}>
         <Text style={styles.title}>Smart Devices</Text>
         <TouchableOpacity onPress={fetchDevices}>
-          <Text style={styles.seeAll}>Refresh</Text>
+          <Text style={styles.refresh}>Refresh</Text>
         </TouchableOpacity>
       </View>
       
@@ -124,46 +123,56 @@ const DeviceSection = () => {
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 20,
     marginBottom: 24,
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
   },
+
   centered: {
     justifyContent: 'center',
     alignItems: 'center',
     height: 200,
   },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
   },
+
   title: {
-    fontSize: 20,
+    fontSize: FONTSIZE.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: COLORS.black,
   },
-  seeAll: {
-    fontSize: 15,
-    color: COLORS.primary,
+
+  refresh: {
+    fontSize: FONTSIZE.small,
+    color: COLORS.yellow,
   },
+
   devicesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
+
   errorText: {
-    color: 'red',
+    fontSize: FONTSIZE.small,
+    color: COLORS.red,
     marginBottom: 15,
   },
+
   retryButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.green,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 5,
   },
+
   retryText: {
-    color: 'white',
+    color: COLORS.white,
     fontWeight: 'bold',
   }
 });
