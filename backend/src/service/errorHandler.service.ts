@@ -4,6 +4,8 @@ import CustomError from "./customError.service";
 import Joi from 'joi';
 
 let errorHandlerRes = (error: unknown, res: Response) => {
+  console.error('Error caught in errorHandlerRes:', error); // Thêm log chi tiết
+
   if (error instanceof Joi.ValidationError) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       success: false,
