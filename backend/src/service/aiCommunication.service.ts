@@ -26,7 +26,14 @@ class AICommunicationService {
             audio: audioBuffer,
           });
     
-          this.socket.once('transcription_complete', (data) => resolve(data.text));
+         // this.socket.once('transcription_complete', (data) => resolve(data.text));
+         // Handle successful transcription
+          this.socket.once('transcription_complete', (data) => {
+            console.log("Received transcription result:", data);
+            
+            // Return the complete data object with command_code
+            resolve(data);
+          });
           this.socket.once('transcription_error', (error) => reject(new Error(error.message)));
     
           setTimeout(() => reject(new Error('Transcription request timed out')), 30000);

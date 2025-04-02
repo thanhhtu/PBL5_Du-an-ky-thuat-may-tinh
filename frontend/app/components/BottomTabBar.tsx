@@ -134,7 +134,7 @@ const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onTabChange }) =
       });
       
       console.log('✅ Response:', response.data);
-      Alert.alert('Transcription', response.data.transcription);
+      Alert.alert('Command', response.data.command);
     } catch (error) {
     //  console.error('❌ Upload error:', error.response?.data || error.message);
       Alert.alert('Error', 'Failed to send audio.');

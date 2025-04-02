@@ -69,10 +69,32 @@
 
 // export default new AIController();
 
+
 import { Request, Response } from 'express';
 import path from 'path';
 import AIService from './ai.service';
 import { errorHandlerRes } from '../../service/errorHandler.service';
+import { Device } from '../../database/entities/Device';
+import { DeviceState } from '../../types/device.enum';
+import controlIoTService from '../../service/controlIoT.service';
+import deviceService from '../devices/device.service';
+import deviceRepo from '../../database/repositories/device.repo';
+import CustomError from '../../service/customError.service';
+import { StatusCodes } from 'http-status-codes';
+import deviceSocket from '../../socket/device.socket';
+
+// Map command codes to their corresponding actions
+const COMMAND_MAP: Record<number, string> = {
+  1: "Mở cửa",
+  2: "Đóng cửa",
+  3: "Bật đèn",
+  4: "Tắt đèn",
+  5: "Mở màn",
+  6: "Đóng màn",
+  7: "Bật quạt",
+  8: "Tắt quạt",
+  [-1]: "Không nhận diện được lệnh"
+};
 
 class AIController {
   async transcribeAudio(req: Request, res: Response): Promise<void> {
@@ -81,28 +103,79 @@ class AIController {
         res.status(400).json({ error: 'No audio file uploaded' });
         return;
       }
-
+      
       console.log('Received file:', req.file);
-
       const inputFilePath = req.file.path;
       const uploadDir = path.join(__dirname, '../../uploads');
+      
+      // Chuyển đổi tệp sang định dạng WAV
+      const outputFilePath = await AIService.convertAudioToWav(inputFilePath, uploadDir);
+      
+      // Gửi tệp WAV để phiên âm
+      const result = await AIService.transcribeAudio(outputFilePath);
+      // Lấy command_code từ kết quả
+      const commandCode = typeof result === 'object' && result.command_code !== undefined 
+        ? result.command_code 
+        : -1;
+      
+      // Lấy lệnh tương ứng với command_code
+      const commandText = COMMAND_MAP[commandCode] || COMMAND_MAP[-1];
+      
+      // Log thông tin
+      console.log(`Command Code: ${commandCode}, Command: ${commandText}`);
+      
+      let deviceId;
+      let status;
+      if(commandCode == 1){
+        deviceId = 1;
+        status = DeviceState.ON;
+      }else if(commandCode == 2){
+        deviceId = 1;
+        status = DeviceState.OFF;
+      }else if(commandCode == 3){
+        deviceId = 2;
+        status = DeviceState.ON;
+      }else if(commandCode == 4){
+        deviceId = 2;
+        status = DeviceState.OFF;
+      }
+      else if(commandCode == 5){
+        deviceId = 3;
+        status = DeviceState.ON;
+      }else if(commandCode == 6){
+        deviceId = 3;
+        status = DeviceState.OFF;
+      }else if(commandCode == 7){
+        deviceId = 4;
+        status = DeviceState.ON;
+      }else if(commandCode == 8){
+        deviceId = 4;
+        status = DeviceState.OFF;
+      }
 
-    
-        // Chuyển đổi tệp sang định dạng WAV
-        const outputFilePath = await AIService.convertAudioToWav(inputFilePath, uploadDir);
+      if(status && deviceId){
+        await deviceRepo.findById(deviceId);;
 
-        // Gửi tệp WAV để phiên âm
-        const transcription = await AIService.transcribeAudio(outputFilePath);
-
-        // Trả về kết quả phiên âm
-        res.json({ transcription });
-        console.log('Transcription:', transcription);
-
-        // Gửi lệnh điều khiển thiết bị (nếu cần)
-        // ControlIoTService.controlDevice(1, transcription);
-
+        const updateDevice = await deviceRepo.updateState(deviceId, status, null);
+        if(!updateDevice){
+          throw new CustomError(StatusCodes.NOT_FOUND, 'Device not found');
+        }
+        await deviceSocket.emitDeviceStateChange(updateDevice);
+          await controlIoTService.controlDevice(deviceId, status);
+        }
+      
+      // Trả về kết quả
+      res.json({
+        command_code: commandCode,
+        command: commandText,
+        success: commandCode !== -1
+      });
+      
+      // Gửi lệnh điều khiển thiết bị (nếu cần)
+      // ControlIoTService.controlDevice(commandCode, commandText);
+      
     } catch (error) {
-     errorHandlerRes(error, res);
+      errorHandlerRes(error, res);
     }
   }
 }

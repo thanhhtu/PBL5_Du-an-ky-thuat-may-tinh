@@ -29,16 +29,33 @@ class AIService {
     });
   }
 
-  async transcribeAudio(filePath: string): Promise<string> {
+  // async transcribeAudio(filePath: string): Promise<string> {
+  //   try {
+  //     // Gửi tệp WAV đến dịch vụ xử lý phiên âm
+  //     const transcription = await aiCommunicationService.sendAudioForTranscription(filePath);
+  //     console.log('Transcription result:', transcription);
+
+  //     // Dọn dẹp tệp sau khi xử lý
+  //     fs.unlinkSync(filePath);
+
+  //     return transcription;
+  //   } catch (error) {
+  //     console.error('Error during transcription:', error);
+  //     throw new Error('Failed to transcribe audio');
+  //   }
+  // }
+  
+  async transcribeAudio(filePath: string): Promise<any> {
     try {
       // Gửi tệp WAV đến dịch vụ xử lý phiên âm
-      const transcription = await aiCommunicationService.sendAudioForTranscription(filePath);
-      console.log('Transcription result:', transcription);
-
+      const result = await aiCommunicationService.sendAudioForTranscription(filePath);
+      console.log('Transcription result:', result);
+      
       // Dọn dẹp tệp sau khi xử lý
       fs.unlinkSync(filePath);
-
-      return transcription;
+      
+      // Return the entire result object which should contain command_code
+      return result;
     } catch (error) {
       console.error('Error during transcription:', error);
       throw new Error('Failed to transcribe audio');

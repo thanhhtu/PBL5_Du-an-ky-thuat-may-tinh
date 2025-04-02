@@ -105,8 +105,8 @@ class DeviceService{
 
       await deviceSocket.emitDeviceStateChange(updateDevice);
 
-      // //iot
-      // await controlIoTService.controlDevice(id, state);
+      //iot
+      await controlIoTService.controlDevice(id, state);
 
       return this.deviceInfo(updateDevice);
     });
