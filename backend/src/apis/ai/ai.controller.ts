@@ -154,8 +154,13 @@ class AIController {
       }
 
       if(status && deviceId){
-        await deviceRepo.findById(deviceId);;
-
+        const dv = await deviceRepo.findById(deviceId);;
+        if (!dv){
+          throw new CustomError(StatusCodes.NOT_FOUND, 'Device not found');
+        }
+        if(dv.state == status){
+          throw new CustomError(StatusCodes.NOT_FOUND, 'Device state is already set');
+        }
         const updateDevice = await deviceRepo.updateState(deviceId, status, null);
         if(!updateDevice){
           throw new CustomError(StatusCodes.NOT_FOUND, 'Device not found');
