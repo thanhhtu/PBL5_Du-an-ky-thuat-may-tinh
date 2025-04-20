@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { COLORS } from '../constants/colors';
 import { BottomTabBarProps } from '../types';
 import AudioService from '../services/audio.service';
-import RecordingWaves from './RecordingWave';
+import RecordingWaves from './RecordingWaves';
 
 const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onTabChange }) => {
   const [isRecording, setIsRecording] = useState(false);

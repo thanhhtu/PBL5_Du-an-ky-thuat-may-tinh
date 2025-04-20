@@ -11,10 +11,10 @@
     "lint:fix": "eslint . --fix",
     "typeorm": "typeorm-ts-node-commonjs",
     "typeorm:run": "npm run typeorm migration:run -- -d ./src/config/orm.config.ts",
-    "typeorm:generate": "npm run typeorm -- -d ./src/config/orm.config.ts migration:generate ./src/database/migrations/smarthome",
-    "typeorm:create-migration": "npm run typeorm -- migration:create ./src/database/migrations/smarthome",
+    "typeorm:generate": "npm run typeorm -- -d ./src/config/orm.config.ts migration:generate ./src/models/migrations/smarthome",
+    "typeorm:create-migration": "npm run typeorm -- migration:create ./src/models/migrations/smarthome",
     "typeorm:revert-migration": "npm run typeorm -- migration:revert -d ./src/config/orm.config.ts",
-    "seed:device-seed": "ts-node src/database/seeders/device.seeder.ts"
+    "seed:device-seed": "ts-node src/models/seeders/device.seeder.ts"
   },
   "author": "",
   "license": "ISC",

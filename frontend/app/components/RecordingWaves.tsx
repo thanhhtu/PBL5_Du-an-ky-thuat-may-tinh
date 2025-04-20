@@ -1,22 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, ViewStyle } from 'react-native';
-
-interface RecordingWavesProps {
-  isRecording: boolean;
-  baseSize: number;
-  waveColor: string;
-}
-
-interface AnimatedValues {
-  wave1: Animated.Value;
-  wave2: Animated.Value;
-  wave3: Animated.Value;
-}
+import { RecordingWavesProps , AnimatedValues } from '../types/index';
 
 const RecordingWaves: React.FC<RecordingWavesProps> = ({
   isRecording,
   baseSize = 70,
-  waveColor = '#4CAF50'
+  waveColor
 }) => {
   
   const animatedValues = useRef<AnimatedValues>({

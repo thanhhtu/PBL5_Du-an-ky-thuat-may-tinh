@@ -1,3 +1,6 @@
+import { Animated } from "react-native";
+
+// Interfaces
 export interface HeaderProps {
   user: string,
   time: string,
@@ -30,16 +33,6 @@ export interface WeatherData {
   wind: string;
 }
 
-export enum DeviceState {
-  ON = 'on',
-  OFF = 'off'
-}
-
-export enum DeviceAction {
-  TURN_ON = 'turn_on',
-  TURN_OFF = 'turn_off'
-}
-
 export interface Device {
   id: number;
   name: string;
@@ -64,6 +57,30 @@ export interface DeviceLog {
   ipAddress: string;
 }
 
+export interface RecordingWavesProps {
+  isRecording: boolean;
+  baseSize: number;
+  waveColor: string;
+}
+
+export interface AnimatedValues {
+  wave1: Animated.Value;
+  wave2: Animated.Value;
+  wave3: Animated.Value;
+}
+
+// Enum Types
+export enum DeviceState {
+  ON = 'on',
+  OFF = 'off'
+}
+
+export enum DeviceAction {
+  TURN_ON = 'turn_on',
+  TURN_OFF = 'turn_off'
+}
+
+// Navigation Types
 export type RootStackParamList = {
   Menu: undefined;
   ProfileScreen: undefined;
@@ -75,4 +92,4 @@ export type RootStackParamList = {
     location: string;
     date: string;
   };
-};
+}
