@@ -4,20 +4,7 @@ import { COLORS, FONTSIZE } from '../constants/colors';
 import { HeaderProps } from '../types';
 import weatherService from '../services/weather.service';
 
-const Header: React.FC<HeaderProps> = ({ user, onRightIconPress }) => {
-  const [time, setTime] = useState('');
-
-  useEffect(() => {
-    const unsubscribe = weatherService.onTimeOfDateChange((time) => {
-      setTime(time);
-    });
-
-    // Cleanup
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
+const Header: React.FC<HeaderProps> = ({ user, time, onRightIconPress }) => {
   return (
     <View style={styles.container}>
       <View  style={styles.greetingUser}>

@@ -1,6 +1,23 @@
 export interface HeaderProps {
   user: string,
+  time: string,
   onRightIconPress?: () => void;
+}
+
+export interface WeatherWidgetProps {
+  location: string,
+  date: string
+}
+
+export interface HomeScreenProps {
+  time: string,
+  location: string,
+  date: string,
+}
+
+export interface BottomTabBarProps {
+  activeTab: number;
+  onTabChange: (index: number) => void;
 }
 
 export interface WeatherData {
@@ -29,7 +46,7 @@ export interface Device {
   label: string;
   image: string;
   state: DeviceState;
-  createdAt: string,
+  createdAt: string
 }
 
 export interface DeviceCardProps {
@@ -39,9 +56,23 @@ export interface DeviceCardProps {
 
 export interface DeviceLog {
   id: number;
+  deviceId: number,
   device: string;
   action: DeviceAction;
   timestamp: string;
   previousState: DeviceState;
   ipAddress: string;
 }
+
+export type RootStackParamList = {
+  Menu: undefined;
+  ProfileScreen: undefined;
+  ProfileDetailScreen: undefined;
+  DeviceListScreen: undefined;
+  DeviceHistoryScreen: undefined;
+  HomeScreen: {
+    time: string;
+    location: string;
+    date: string;
+  };
+};

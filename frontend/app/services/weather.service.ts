@@ -64,20 +64,17 @@ class WeatherService{
     this.dateChangeCallbacks = [];
   }
   
-  async getTemperature(): Promise<void>{
+  async getTempHumid(): Promise<any>{
     try{
-      
-    }catch(error){
-      console.log('error: service: ', error);
-      throw error;
-    }
-  }
+      const res = await this.api.get('/temp-humid');
+      if(!res.data.success){
+        throw new Error('Failed to fetch data');
+      }
 
-  async getHumidity(): Promise<void>{
-    try{
-      
+      console.log('data: ', res.data.data);
+
+      return res.data.data;
     }catch(error){
-      console.log('error: service: ', error);
       throw error;
     }
   }

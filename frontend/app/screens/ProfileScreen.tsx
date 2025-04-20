@@ -1,82 +1,149 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
-import { COLORS } from '../constants/colors';
-import Header from '../components/Header';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  SafeAreaView, 
+  TouchableOpacity, 
+  ScrollView 
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { RootStackParamList } from '../types'; // Import the centralized type
+
+const deviceActivities = [
+  {
+    room: 'Bedroom',
+    description: 'Aircondition working to last 5 hour in bedroom.',
+    icon: 'bed-outline',
+    time: 'Yesterday',
+    screen: 'ProfileDetailScreen'
+  },
+  {
+    room: 'Kids room',
+    description: 'Music system working to last 5 hour in kids room.',
+    icon: 'musical-notes-outline',
+    time: 'Yesterday',
+    screen: 'DeviceListScreen'
+  },
+  {
+    room: 'Kitchen',
+    description: 'Hey, did you forget turn off the smart lamp?',
+    icon: 'restaurant-outline',
+    time: 'Yesterday',
+    screen: 'DeviceHistoryScreen'
+  }
+];
+
+// type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
 
 const ProfileScreen = () => {
+  // Define navigation with a more specific type
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
+  // Helper function to handle navigation with proper type checking
+  const navigateToScreen = (screenName: string) => {
+    switch (screenName) {
+      case 'ProfileDetailScreen':
+        navigation.navigate('ProfileDetailScreen');
+        break;
+      case 'DeviceListScreen':
+        navigation.navigate('DeviceListScreen');
+        break;
+      case 'DeviceHistoryScreen':
+        navigation.navigate('DeviceHistoryScreen');
+        break;
+      default:
+        // Handle any other cases
+        console.log('Unknown screen:', screenName);
+    }
+  };
+
   return (
-    <ScrollView style={styles.scrollView}>
-      <Header user='Profile' />
-      <View style={styles.profileContainer}>
-        <Image 
-          source={require('../assets/icons/profile.png')} 
-          style={styles.profileImage}
-        />
-        <Text style={styles.userName}>User Name</Text>
-        <Text style={styles.userEmail}>user@example.com</Text>
-        
-        {/* Thêm các thông tin profile khác ở đây */}
-        <View style={styles.infoItem}>
-          <Text style={styles.infoLabel}>Account Settings</Text>
-        </View>
-        <View style={styles.infoItem}>
-          <Text style={styles.infoLabel}>Notification Preferences</Text>
-        </View>
-        <View style={styles.infoItem}>
-          <Text style={styles.infoLabel}>Connected Devices</Text>
-        </View>
-        <View style={styles.infoItem}>
-          <Text style={styles.infoLabel}>Help & Support</Text>
-        </View>
-        <View style={styles.infoItem}>
-          <Text style={styles.infoLabel}>About</Text>
-        </View>
+    <SafeAreaView style={styles.container}>
+      {/* Profile header */}
+      <View style={styles.profileHeader}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.profileTitle}>Profile</Text>
+        <TouchableOpacity onPress={() => {}}>
+          <Icon name="create-outline" size={24} color="black" />
+        </TouchableOpacity>
       </View>
-    </ScrollView>
+
+      {/* Device activities */}
+      <ScrollView style={styles.activitiesContainer}>
+        {deviceActivities.map((activity, index) => (
+          <TouchableOpacity 
+            key={index} 
+            style={styles.activityItem}
+            onPress={() => navigateToScreen(activity.screen)}
+          >
+            <View style={styles.activityIconContainer}>
+              <Icon name={activity.icon} size={24} color="#666" />
+            </View>
+            <View style={styles.activityTextContainer}>
+              <Text style={styles.activityRoom}>{activity.room}</Text>
+              <Text style={styles.activityDescription}>
+                {activity.description}
+              </Text>
+              <Text style={styles.activityTime}>{activity.time}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: {
+  container: {
     flex: 1,
-    padding: 16,
+    backgroundColor: '#F0F2F5'
   },
-  profileContainer: {
+  profileHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
-  },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 15,
-  },
-  userName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: COLORS.text,
-    marginBottom: 5,
-  },
-  userEmail: {
-    fontSize: 16,
-    color: COLORS.textSecondary,
-    marginBottom: 20,
-  },
-  infoItem: {
-    width: '100%',
     padding: 15,
-    backgroundColor: COLORS.white,
-    borderRadius: 10,
-    marginBottom: 10,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    backgroundColor: 'white'
   },
-  infoLabel: {
-    fontSize: 16,
-    color: COLORS.text,
+  profileTitle: {
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
+  activitiesContainer: {
+    marginTop: 10
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    padding: 15,
+    marginVertical: 5,
+    marginHorizontal: 10,
+    borderRadius: 10
+  },
+  activityIconContainer: {
+    marginRight: 15
+  },
+  activityTextContainer: {
+    flex: 1
+  },
+  activityRoom: {
+    fontWeight: 'bold',
+    fontSize: 16
+  },
+  activityDescription: {
+    color: '#666',
+    marginTop: 5
+  },
+  activityTime: {
+    color: '#999',
+    marginTop: 5,
+    fontSize: 12
   }
 });
 

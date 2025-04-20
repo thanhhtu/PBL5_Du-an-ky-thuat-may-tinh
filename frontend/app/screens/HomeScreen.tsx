@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import WeatherWidget from '../components/WeatherWidget';
 import DeviceSection from '../components/DeviceSection';
-import BottomTabBar from '../components/BottomTabBar';
 import Header from '../components/Header';
 import { COLORS } from '../constants/colors';
+import { HomeScreenProps } from '../types';
 
-const HomeScreen = () => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ time, location, date }) => {
   return (
     <LinearGradient 
       colors={COLORS.yellowGradient}
@@ -18,8 +18,12 @@ const HomeScreen = () => {
         <ScrollView style={styles.scrollView}>
           <Header 
             user='Smart Home'
+            time={time}
           />
-          <WeatherWidget />
+          <WeatherWidget 
+            location={location}
+            date={date}
+          />
           <DeviceSection />
         </ScrollView>
       </SafeAreaView>

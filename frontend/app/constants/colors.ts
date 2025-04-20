@@ -23,21 +23,23 @@ export const FONTSIZE = {
   medium: 18,
   small: 15,
   tiny: 12,
-}
+};
 
-// Temperature
-// Freezing (Dưới 0°C)
-// Cold (0 – 15°C)
-// Cool (15 – 20°C)
-// Mild (20 – 25°C)
-// Warm (25 – 30°C)
-// Hot (30 – 35°C)
-// Very Hot (35 – 40°C)
-// Scorching (Trên 40°C)
+export const TEMPERATURE_LEVELS = [
+  { label: 'Freezing', value: 0 },
+  { label: 'Cold', value: 15 },
+  { label: 'Cool', value: 20 },
+  { label: 'Mild', value: 25 },
+  { label: 'Warm', value: 30 },
+  { label: 'Hot', value: 35 },
+  { label: 'Very Hot', value: 40 },
+  { label: 'Scorching', value: Infinity },
+];
 
-// Humidity
-// Very Dry (< 20%) – Rất khô
-// Dry (20 – 40%) – Khô
-// Normal / Comfortable (40 – 60%) – Bình thường / Thoải mái 🌿
-// Humid (60 – 80%) – Ẩm
-// Very Humid (80 – 100%) – Rất ẩm
+export const HUMIDITY_LEVELS = [
+  { label: 'Very Dry', value: 20 },
+  { label: 'Dry', value: 40 },
+  { label: 'Normal', value: 60 },
+  { label: 'Humid', value: 80 },
+  { label: 'Very Humid', value: 100 },
+];

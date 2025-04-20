@@ -1,9 +1,9 @@
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { getIO } from '../config/socket.config';
-import { errorHandlerFunc } from '../service/errorHandler.service';
-import weatherContentService from '../service/weatherContent.service';
+import { errorHandlerFunc } from '../providers/errorHandler.provider';
+import weatherContentService from '../providers/weatherContent.provider';
 
-class WeatherContentSocket{
+class WeatherContentSocket {
   _io: Server | null = null;
 
   get io(): Server {
@@ -13,7 +13,7 @@ class WeatherContentSocket{
     return this._io;
   }
 
-  async emitLocationChange(): Promise<void>{
+  async emitLocationChange(): Promise<void> {
     return errorHandlerFunc(async () => {
       const location = await weatherContentService.getLocation();
 
@@ -21,7 +21,7 @@ class WeatherContentSocket{
     });
   }
 
-  async emitDateChange(): Promise<void>{
+  async emitDateChange(): Promise<void> {
     return errorHandlerFunc(async () => {
       const date = await weatherContentService.getDate();
 
@@ -29,7 +29,7 @@ class WeatherContentSocket{
     });
   }
 
-  async emitTimeOfDateChange(): Promise<void>{
+  async emitTimeOfDateChange(): Promise<void> {
     return errorHandlerFunc(async () => {
       const time = await weatherContentService.getTimeOfDay();
 

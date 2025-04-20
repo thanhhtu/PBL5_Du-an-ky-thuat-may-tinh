@@ -26,8 +26,8 @@ class DeviceService{
   async getAllDevices(): Promise<Device[]>{
     try{
       const res = await this.api.get('/devices');
+
       if(!res.data.success){
-        console.log('error: service-success: ', res.data.success);
         throw new Error('Failed to fetch data');
       }
 

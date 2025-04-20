@@ -17,6 +17,7 @@ const socketConfig = (server: HttpServer) => {
     console.log(`New client connected: ${socket.id}`);
     connectedSockets.add(socket);
 
+    //emit weather
     await weatherContentSocket.emitLocationChange();
     await weatherContentSocket.emitDateChange();
     await weatherContentSocket.emitTimeOfDateChange();
@@ -37,7 +38,4 @@ const getIO = (): Server => {
   return io;
 };
 
-export {
-  socketConfig,
-  getIO
-};
+export { socketConfig, getIO };

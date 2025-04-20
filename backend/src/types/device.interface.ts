@@ -1,19 +1,20 @@
-import { DeviceAction, DeviceState } from "./device.enum";
+import { DeviceAction, DeviceState } from './device.enum';
 
 export interface IDevice {
-  id: number,
-  name: string,
-  label: string,
-  image: string,
-  state: DeviceState,
-  createdAt: Date,
+  id: number;
+  name: string;
+  label: string;
+  image: string;
+  state: DeviceState;
+  createdAt: Date;
 }
 
 export interface IDeviceLog {
-  id: number,
-  device: string,
-  action: DeviceAction,
-  timestamp: Date,
-  previousState: DeviceState,
-  ipAddress?: string,
+  id: number;
+  deviceId: number;
+  device: string;
+  action: DeviceAction;
+  timestamp: Date;
+  previousState: DeviceState;
+  ipAddress?: string;
 }
