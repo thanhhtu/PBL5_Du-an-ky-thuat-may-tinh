@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import BottomTabBar from '../components/BottomTabBar';
-import { COLORS } from '../constants/colors';
+import { COLORS } from '../constants';
 import HomeScreen from './HomeScreen';
 import ProfileScreen from './ProfileScreen';
 import weatherService from '../services/weather.service';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { DeviceCardProps, DeviceState } from '../types';
-import { COLORS, FONTSIZE } from '../constants/colors';
+import { COLORS, FONTSIZE } from '../constants';
 
 const DeviceCard: React.FC<DeviceCardProps> = ({ device, onToggle }) => {
   const isActive = device.state === DeviceState.ON;

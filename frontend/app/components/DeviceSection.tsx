@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { COLORS, FONTSIZE } from '../constants/colors';
+import { COLORS, FONTSIZE } from '../constants';
 import DeviceCard from './DeviceCard';
 import { Device, DeviceState } from '../types';
 import deviceService from '../services/device.service';

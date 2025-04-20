@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ImageSourcePropType } from 'react-native';
-import { COLORS, FONTSIZE } from '../constants/colors';
+import { COLORS, FONTSIZE } from '../constants';
 import { HeaderProps } from '../types';
 import weatherService from '../services/weather.service';
 

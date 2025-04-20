@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
-import { COLORS } from '../constants/colors';
+import { COLORS } from '../constants';
 import { BottomTabBarProps } from '../types';
 import AudioService from '../services/audio.service';
 import RecordingWaves from './RecordingWaves';

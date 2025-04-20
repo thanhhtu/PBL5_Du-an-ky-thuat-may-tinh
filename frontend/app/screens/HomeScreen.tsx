@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import WeatherWidget from '../components/WeatherWidget';
 import DeviceSection from '../components/DeviceSection';
 import Header from '../components/Header';
-import { COLORS } from '../constants/colors';
+import { COLORS } from '../constants';
 import { HomeScreenProps } from '../types';
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ time, location, date }) => {

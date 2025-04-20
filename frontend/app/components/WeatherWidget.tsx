@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { COLORS, FONTSIZE, HUMIDITY_LEVELS, TEMPERATURE_LEVELS } from '../constants/colors';
+import { COLORS, FONTSIZE, HUMIDITY_LEVELS, TEMPERATURE_LEVELS } from '../constants';
 import { WeatherWidgetProps } from '../types';
 import weatherService from '../services/weather.service';
 
