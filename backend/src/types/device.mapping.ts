@@ -9,6 +9,8 @@ export const COMMAND_MAP: Record<number, string> = {
   6: 'Close the curtain',
   7: 'Turn on the fan',
   8: 'Turn off the fan',
+  9: 'Turn on all devices',
+  10: 'Turn off all devices',
   [-1]: 'Command not recognized'
 }
 

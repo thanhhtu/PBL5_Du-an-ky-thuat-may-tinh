@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
-class AuthService {
+class AuthProvider {
   async encodeToken(id: number) {
     return jwt.sign(
       {
@@ -20,4 +20,4 @@ class AuthService {
   }
 }
 
-export default new AuthService();
+export default new AuthProvider();

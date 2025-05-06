@@ -6,19 +6,30 @@ import { uploadImage } from '../../providers/upload.provider';
 
 const route = express.Router();
 
-route.get('/', deviceController.getAllDevices);
+route.route('/')
+  .get(deviceController.getAllDevices)
+  .post(
+    uploadImage.single('image'),
+    validateMiddleware.createDeviceBody,
+    deviceController.createDevice
+  );
 
-route.post('/',
-  uploadImage.single('image'),
-  validateMiddleware.createDeviceBody,
-  deviceController.createDevice
+route.patch('/all/state',
+  validateMiddleware.updateDeviceStateBody,
+  deviceController.updateAllDevicesState
 );
 
-route.get('/:id', urlValidateMiddleware.id, deviceController.getDeviceById);
+route.route('/:id')
+  .get(
+    urlValidateMiddleware.id, 
+    deviceController.getDeviceById
+  )
+  .delete(
+    urlValidateMiddleware.id, 
+    deviceController.deleteDevice
+  );
 
 route.get('/:id/logs', deviceController.getDeviceLogs);
-
-route.delete('/:id', urlValidateMiddleware.id, deviceController.deleteDevice);
 
 route.patch('/:id/state',
   urlValidateMiddleware.id,

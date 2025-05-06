@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { COLORS, FONTSIZE } from '../constants';
 import DeviceCard from './DeviceCard';
 import { Device, DeviceState } from '../types';
 import deviceService from '../services/device.service';
+import DeviceAllCard from './DeviceAllCard';
 
 const DeviceSection = () => {
   const [devices, setDevices] = useState<Device[]>([]);
@@ -44,6 +45,32 @@ const DeviceSection = () => {
       await deviceService.updateDeviceState(id, newState);
 
       console.log(`Device ${id} toggled to ${newState}`);
+    } catch(error) {
+      if (error instanceof Error) {
+        setError(error.message || 'Network error when fetching devices');
+      } else {
+        setError('An unknown error occurred');
+      }
+
+      fetchDevices();
+    }
+  };
+
+  // Toggle device sate
+  const handleAllDevicesToggle = async(newState: DeviceState) => {
+    try {
+      // // Update UI immediately
+      // setDevices((preDevices) => 
+      //   preDevices.map((device) => 
+      //     device.id === id 
+      //     ? {...device, state: newState}
+      //     : device
+      //   )
+      // );
+
+      await deviceService.updateAllDeviceState(newState);
+
+      console.log(`All devices toggled to ${newState}`);
     } catch(error) {
       if (error instanceof Error) {
         setError(error.message || 'Network error when fetching devices');
@@ -107,14 +134,27 @@ const DeviceSection = () => {
           <Text>No devices found</Text>
         </View>
       ) : (
-        <View style={styles.devicesGrid}>
-          {devices.map((device) => (
-            <DeviceCard 
-              key={device.id} 
-              device={device}
-              onToggle={handleDeviceToggle}
+        <View style={styles.deviceContainer}>
+          <ScrollView 
+            style={styles.scrollView}
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}
+          >
+            <DeviceAllCard 
+              devices={devices}
+              onToggle={handleAllDevicesToggle} 
             />
-          ))}
+
+            <View style={styles.devicesGrid}>
+              {devices.map((device) => (
+                <DeviceCard 
+                  key={device.id} 
+                  device={device}
+                  onToggle={handleDeviceToggle}
+                />
+              ))}
+            </View>
+          </ScrollView>
         </View>
       )}
     </View>
@@ -126,6 +166,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 24,
     paddingHorizontal: 15,
+    position: 'relative',
   },
 
   centered: {
@@ -150,6 +191,16 @@ const styles = StyleSheet.create({
   refresh: {
     fontSize: FONTSIZE.small,
     color: COLORS.yellow,
+  },
+
+  deviceContainer: {
+    height: 300, 
+    overflow: 'hidden',
+  },
+
+  scrollView: {
+    width: '100%',
+    height: '100%',
   },
 
   devicesGrid: {

@@ -2,7 +2,7 @@ import { Repository } from 'typeorm';
 import { Device } from '../entities/Device';
 import { AppDataSource } from '../../config/orm.config';
 import { errorHandlerFunc } from '../../providers/errorHandler.provider';
-import { DeviceAction, DeviceName, DeviceState } from '../../types/device.enum';
+import { DeviceAction, DeviceState } from '../../types/device.enum';
 import deviceLogRepo from './deviceLog.repo';
 
 class DeviceRepo {
@@ -61,6 +61,35 @@ class DeviceRepo {
       await deviceLogRepo.saveLog(device, action, previousState, ipAddress);
 
       return device;
+    });
+  }
+
+  async updateAllState(
+    state: DeviceState,
+    ipAddress: string | null
+  ): Promise<Device[] | null> {
+    return errorHandlerFunc(async () => {
+      const devices = await this.deviceRepo.find();
+      if (!devices) {
+        return null;
+      }
+
+      let updatedDevices: Device[] = [];
+
+      for(const device of devices) {
+        const previousState = device.state;
+
+        device.state = state;
+        await this.deviceRepo.save(device);
+
+        const action = state === DeviceState.ON ? DeviceAction.TURN_ON : DeviceAction.TURN_OFF;
+
+        await deviceLogRepo.saveLog(device, action, previousState, ipAddress);
+
+        updatedDevices.push(device);
+      }
+
+      return updatedDevices;
     });
   }
 }

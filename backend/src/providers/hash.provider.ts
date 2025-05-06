@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 
-class HashService {
+class HashProvider {
   async hashPassword(plainText: string) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(plainText, salt);
@@ -12,4 +12,4 @@ class HashService {
   }
 }
 
-export default new HashService();
+export default new HashProvider();

@@ -47,6 +47,11 @@ export interface DeviceCardProps {
   onToggle: (id: number, newState: DeviceState) => void;
 }
 
+export interface DeviceAllCardProps {
+  devices: Device[];
+  onToggle: (newState: DeviceState) => void;
+}
+
 export interface DeviceLog {
   id: number;
   deviceId: number,

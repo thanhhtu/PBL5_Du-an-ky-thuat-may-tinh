@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { DeviceCardProps, DeviceState } from '../types';
 import { COLORS, FONTSIZE } from '../constants';
+import deviceService from '../services/device.service';
 
 const DeviceCard: React.FC<DeviceCardProps> = ({ device, onToggle }) => {
   const isActive = device.state === DeviceState.ON;
@@ -10,6 +11,12 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onToggle }) => {
     onToggle(device.id, isActive ? DeviceState.OFF : DeviceState.ON);
   };
   
+  const [imageUri, setImageUri] = React.useState('');
+  useEffect(() => {
+    const uriImage = deviceService.getUriImage(device.image);
+    setImageUri(uriImage);
+  }, [device]);
+
   return (
     <View style={[
       styles.container, 
@@ -21,7 +28,7 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onToggle }) => {
           isActive ? styles.activeIconContainer : styles.inactiveIconContainer
         ]}>
           <Image 
-            source={{ uri: `${process.env.EXPO_PUBLIC_API_BASE_URL}/${device.image}` }} 
+            source={{ uri: `${imageUri}` }} 
             style={styles.icon} 
             resizeMode='contain' 
           />

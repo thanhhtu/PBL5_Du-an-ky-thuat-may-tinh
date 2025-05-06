@@ -92,6 +92,25 @@ class DeviceController {
       next(error);
     }
   }
+
+  async updateAllDevicesState(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { state } = req.body;
+      const ipAddress = req.ip || req.socket.remoteAddress || null;
+
+      const updatedDevices = await deviceService.updateAllDeviceState(
+        state,
+        ipAddress
+      );
+
+      res.status(StatusCodes.OK).json({
+        success: true,
+        data: updatedDevices,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new DeviceController(); 

@@ -102,10 +102,30 @@ class DeviceService {
 
       await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-      // iot
-      await deviceIot.controlDevice(id, state);
+      // // iot
+      // await deviceIot.controlDevice(id, state);
 
       return this.deviceInfo(updatedDevice);
+    });
+  }
+
+  async updateAllDeviceState(state: DeviceState, ipAddress: string | null): Promise<IDevice[]> {
+    return errorHandlerFunc(async () => {
+      const updatedDevices = await deviceRepo.updateAllState(state, ipAddress);
+      if (!updatedDevices) {
+        throw new CustomError(StatusCodes.NOT_FOUND, 'Devices not found');
+      }
+
+      updatedDevices.forEach(async(updatedDevice) => {
+        await deviceSocket.emitDeviceStateChange(updatedDevice);
+
+        // // iot
+        // await deviceIot.controlDevice(updatedDevice.id, state);
+      });
+
+      const result: IDevice[] = updatedDevices.map(device => this.deviceInfo(device));
+
+      return result;
     });
   }
 }

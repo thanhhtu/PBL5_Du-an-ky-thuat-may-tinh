@@ -76,6 +76,23 @@ class DeviceService{
     }
   }
 
+  async updateAllDeviceState(state: DeviceState): Promise<DeviceLog[]>{
+    try{
+      const res = await this.api.patch(`/devices/all/state`, { state });
+      if(!res.data.success){
+        throw new Error('Failed to fetch data');
+      }
+
+      return res.data.data;
+    }catch(error){
+      throw error;
+    }
+  }
+
+  getUriImage(image: string): string{
+    return `${process.env.EXPO_PUBLIC_API_BASE_URL}/${image}`;
+  }
+
   onDeviceStateChange(callback: (device: Device) => void): () => void {
     this.deviceStateChangeCallbacks.push(callback);
     
