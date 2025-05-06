@@ -1,7 +1,7 @@
 import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import axios, { AxiosInstance } from 'axios';
-import { Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 const SILENCE_THRESHOLD = -40; // dBFS threshold, adjust based on testing
 const SILENCE_DURATION_THRESHOLD = 2000; // Stop recording after 2 seconds of silence
@@ -361,8 +361,14 @@ class AudioService {
       });
   
       console.log('Server Response:', response.status, response.data);
+
+      if(response.data.success && response.data.data.data){
+        if(typeof response.data.data === 'string'){
+          Alert.alert('Transcription Result', response.data.data);
+        }
+      }
+
       return response.data;
-  
     } catch (error: any) {
       console.error('Audio Upload Error Details:', error);
       
