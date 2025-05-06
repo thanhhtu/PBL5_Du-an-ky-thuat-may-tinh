@@ -102,10 +102,11 @@ class DeviceService {
 
       await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-      // // iot
-      // await deviceIot.controlDevice(id, state);
+      // iot
+      await deviceIot.controlDevice(id, state);
 
-      return this.deviceInfo(updatedDevice);
+      const deviceInfo = this.deviceInfo(updatedDevice);
+      return deviceInfo;
     });
   }
 
@@ -119,13 +120,13 @@ class DeviceService {
       updatedDevices.forEach(async(updatedDevice) => {
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-        // // iot
-        // await deviceIot.controlDevice(updatedDevice.id, state);
+        // iot
+        await deviceIot.controlDevice(updatedDevice.id, state);
       });
 
-      const result: IDevice[] = updatedDevices.map(device => this.deviceInfo(device));
+      const devicesInfo: IDevice[] = updatedDevices.map(device => this.deviceInfo(device));
 
-      return result;
+      return devicesInfo;
     });
   }
 }

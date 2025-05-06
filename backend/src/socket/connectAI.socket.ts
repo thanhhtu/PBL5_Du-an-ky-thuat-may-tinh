@@ -30,6 +30,7 @@ class ConnectAISocket {
       });
   
       socket.once('transcription_error', (error) => {
+        console.log('Received transcription error:', error);
         reject(new Error(error.message));
       });
   
