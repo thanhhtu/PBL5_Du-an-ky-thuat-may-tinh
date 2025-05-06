@@ -12,6 +12,8 @@ import deviceIot from '../../iot/device.iot';
 import { Device } from '../../models/entities/Device';
 import { IDevice } from '../../types/device.interface';
 import ffmpegPath from 'ffmpeg-static';
+import { DeviceState } from '../../types/device.enum';
+import deviceService from '../devices/device.service';
 
 class AIService {
   async convertAudioToWav(inputFilePath: string, outputDir: string): Promise<string> {
@@ -46,6 +48,26 @@ class AIService {
     });
   }
 
+  async updateAllDevicesStateByCommandCode(
+    commandCode: number, 
+    ipAddress: string | null
+  ): Promise<any> {
+    const state = commandCode === 9 ? DeviceState.ON : DeviceState.OFF;
+    const updatedDevices = await deviceRepo.updateAllState(state, ipAddress);
+
+    if (!updatedDevices) {
+      throw new CustomError(StatusCodes.NOT_FOUND, 'Devices not found');
+    }
+
+    // Emit events and control IoT devices
+    await Promise.all(updatedDevices.map(async (device) => {
+      await deviceSocket.emitDeviceStateChange(device);
+      await deviceIot.controlDevice(device.id, state);
+    }));
+
+    return updatedDevices.map(device => this.deviceInfo(device));
+  }
+
   async updateDeviceState(inputFilePath: string, ipAddress: string | null): Promise<any | number> {
     return errorHandlerFunc(async () => {
       const uploadDir = path.join(__dirname, '../../uploads/audio/wav');
@@ -59,8 +81,30 @@ class AIService {
         : -1;
       console.log(`Command Code: ${commandCode} - Command Message: ${COMMAND_MAP[commandCode]}`);
 
+      if(commandCode === 9 || commandCode === 10) {
+        const state = commandCode === 9 ? DeviceState.ON : DeviceState.OFF;
+        const updatedDevices = await deviceRepo.updateAllState(state, ipAddress);
+        if (!updatedDevices) {
+          throw new CustomError(StatusCodes.NOT_FOUND, 'Devices not found');
+        }
+
+        updatedDevices.forEach(async(updatedDevice) => {
+          await deviceSocket.emitDeviceStateChange(updatedDevice);
+
+          // iot
+          await deviceIot.controlDevice(updatedDevice.id, state);
+        });
+
+        const devicesInfo: IDevice[] = updatedDevices.map(device => this.deviceInfo(device));
+
+        return {
+          devicesInfo,
+          commandCode,
+        };
+      }
+
       const deviceInfo = COMMAND_DEVICE_MAP[commandCode];
-      if (deviceInfo) {
+      if (!deviceInfo) {
         throw new CustomError(StatusCodes.NOT_FOUND, 'Device not found');
       }
 

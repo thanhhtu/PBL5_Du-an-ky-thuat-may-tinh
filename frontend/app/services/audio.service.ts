@@ -3,8 +3,8 @@ import * as FileSystem from 'expo-file-system';
 import axios, { AxiosInstance } from 'axios';
 import { Platform } from 'react-native';
 
-const SILENCE_THRESHOLD = -40; // dBFS threshold, adjust based on testing
-const SILENCE_DURATION_THRESHOLD = 2000; // Stop recording after 2 seconds of silence
+const SILENCE_THRESHOLD = -20; // dBFS threshold, adjust based on testing
+const SILENCE_DURATION_THRESHOLD = 1000; // Stop recording after 2 seconds of silence
 
 export interface AudioServiceCallbacks {
   onRecordingStart?: () => void;
@@ -29,6 +29,7 @@ class AudioService {
       },
       timeout: 30000
     });
+    console.log('AudioService initialized with base URL:', process.env.EXPO_PUBLIC_API_BASE_URL);
   }
 
   setCallbacks(callbacks: AudioServiceCallbacks) {
