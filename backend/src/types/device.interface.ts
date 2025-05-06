@@ -18,3 +18,8 @@ export interface IDeviceLog {
   previousState: DeviceState;
   ipAddress?: string;
 }
+
+export interface IAudioDevice {
+  data: IDevice | IDevice[] | string;
+  commandCode: number
+}

@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Device } from '../entities/Device';
 import { AppDataSource } from '../../config/orm.config';
 import { errorHandlerFunc } from '../../providers/errorHandler.provider';
@@ -90,6 +90,26 @@ class DeviceRepo {
       }
 
       return updatedDevices;
+    });
+  }
+
+  async checkAllDevicesOn(): Promise<boolean> {
+    return errorHandlerFunc(async () => {
+      const result = await this.deviceRepo.count({
+        where: { state: Not(DeviceState.ON) },
+      });
+
+      return result === 0;
+    });
+  }
+
+  async checkAllDevicesOff(): Promise<boolean> {
+    return errorHandlerFunc(async () => {
+      const result = await this.deviceRepo.count({
+        where: { state: Not(DeviceState.OFF) },
+      });
+      
+      return result === 0;
     });
   }
 }

@@ -18,8 +18,7 @@ class AIController {
 
       res.status(StatusCodes.OK).json({
         success: true,
-        data: result.updatedDevice,
-        commandCode: result.commandCode
+        data: result,
       });
     } catch (error) {
       next(error);

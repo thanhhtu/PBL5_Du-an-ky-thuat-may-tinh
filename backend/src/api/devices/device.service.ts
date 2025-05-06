@@ -105,7 +105,8 @@ class DeviceService {
       // // iot
       // await deviceIot.controlDevice(id, state);
 
-      return this.deviceInfo(updatedDevice);
+      const deviceInfo = this.deviceInfo(updatedDevice);
+      return deviceInfo;
     });
   }
 
@@ -116,16 +117,20 @@ class DeviceService {
         throw new CustomError(StatusCodes.NOT_FOUND, 'Devices not found');
       }
 
-      updatedDevices.forEach(async(updatedDevice) => {
+      await Promise.all(updatedDevices.map(async (updatedDevice) => {
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
         // // iot
         // await deviceIot.controlDevice(updatedDevice.id, state);
-      });
+      }));
 
-      const result: IDevice[] = updatedDevices.map(device => this.deviceInfo(device));
+      const devicesInfo: IDevice[] = await Promise.all(
+        updatedDevices.map((device) => this.deviceInfo(device))
+      );
 
-      return result;
+      console.log('Device - Updated devices:', devicesInfo);
+
+      return devicesInfo;
     });
   }
 }

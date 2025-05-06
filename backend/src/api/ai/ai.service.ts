@@ -10,8 +10,9 @@ import { StatusCodes } from 'http-status-codes';
 import deviceSocket from '../../socket/device.socket';
 import deviceIot from '../../iot/device.iot';
 import { Device } from '../../models/entities/Device';
-import { IDevice } from '../../types/device.interface';
+import { IAudioDevice, IDevice } from '../../types/device.interface';
 import ffmpegPath from 'ffmpeg-static';
+import { DeviceState } from '../../types/device.enum';
 
 class AIService {
   async convertAudioToWav(inputFilePath: string, outputDir: string): Promise<string> {
@@ -46,21 +47,59 @@ class AIService {
     });
   }
 
-  async updateDeviceState(inputFilePath: string, ipAddress: string | null): Promise<any | number> {
+  async updateAllDevicesByCommandCode(commandCode: number, ipAddress: string | null): Promise<IAudioDevice > {
     return errorHandlerFunc(async () => {
-      const uploadDir = path.join(__dirname, '../../uploads/audio/wav');
-      
-      const outputFilePath = await this.convertAudioToWav(inputFilePath, uploadDir);
-      const result = await this.transcribeAudio(outputFilePath);
-      
-      // Get commandCode
-      const commandCode = (typeof result === 'object') && (result.command_code !== undefined) 
-        ? result.command_code 
-        : -1;
-      console.log(`Command Code: ${commandCode} - Command Message: ${COMMAND_MAP[commandCode]}`);
+      if(commandCode === 9){
+        const areAllDevicesOn = await deviceRepo.checkAllDevicesOn();
+        if(areAllDevicesOn){
+          console.log(`All devices are already in state ON. No update needed.`);
+          return {
+            data: 'All devices are already in state ON. No update needed.',
+            commandCode: commandCode,
+          };
+        }
+      }else if(commandCode === 10) {
+        const areAllDevicesOff = await deviceRepo.checkAllDevicesOff();
+        if(areAllDevicesOff){
+          console.log(`All devices are already in state OFF. No update needed.`);
+          return {
+            data: 'All devices are already in state OFF. No update needed.',
+            commandCode: commandCode,
+          };
+        }
+      }
 
+      const state = commandCode === 9 ? DeviceState.ON : DeviceState.OFF;
+      
+      const updatedDevices = await deviceRepo.updateAllState(state, ipAddress);
+      if (!updatedDevices) {
+        throw new CustomError(StatusCodes.NOT_FOUND, 'Devices not found');
+      }
+
+      await Promise.all(updatedDevices.map(async (updatedDevice) => {
+        await deviceSocket.emitDeviceStateChange(updatedDevice);
+
+        // // iot
+        // await deviceIot.controlDevice(updatedDevice.id, state);
+      }));
+
+      const devicesInfo: IDevice[] = await Promise.all(
+        updatedDevices.map((device) => this.deviceInfo(device))
+      );
+
+      console.log('AI - Updated devices:', devicesInfo);
+      
+      return {
+        data: devicesInfo,
+        commandCode: commandCode,
+      }
+    });
+  }
+
+  async updateSingleDeviceByCommandCode(commandCode: number, ipAddress: string | null): Promise<IAudioDevice> {
+    return errorHandlerFunc(async () => {
       const deviceInfo = COMMAND_DEVICE_MAP[commandCode];
-      if (deviceInfo) {
+      if (!deviceInfo) {
         throw new CustomError(StatusCodes.NOT_FOUND, 'Device not found');
       }
 
@@ -79,18 +118,42 @@ class AIService {
 
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-        //iot
-        await deviceIot.controlDevice(deviceId, state);
+        // // iot
+        // await deviceIot.controlDevice(deviceId, state);
 
         const deviceInfo = this.deviceInfo(updatedDevice);
         return {
-          deviceInfo,
-          commandCode,
+          data: deviceInfo,
+          commandCode: commandCode,
         };
       }
 
       console.log(`Device ${deviceId} is already in state ${state}. No update needed.`);
-      return commandCode;
+      return {
+        data: `Device ${deviceId} is already in state ${state}. No update needed.`,
+        commandCode: commandCode,
+      };
+    });
+  }
+
+  async updateDeviceState(inputFilePath: string, ipAddress: string | null): Promise<IAudioDevice> {
+    return errorHandlerFunc(async () => {
+      const uploadDir = path.join(__dirname, '../../uploads/audio/wav');
+      
+      const outputFilePath = await this.convertAudioToWav(inputFilePath, uploadDir);
+      const result = await this.transcribeAudio(outputFilePath);
+      
+      // Get commandCode
+      const commandCode = (typeof result === 'object') && (result.command_code !== undefined) 
+        ? result.command_code 
+        : -1;
+      console.log(`Command Code: ${commandCode} - Command Message: ${COMMAND_MAP[commandCode]}`);
+
+      if(commandCode === 9 || commandCode === 10) {
+        return await this.updateAllDevicesByCommandCode(commandCode, ipAddress);
+      }
+
+      return await this.updateSingleDeviceByCommandCode(commandCode, ipAddress);
     });
   }
 
