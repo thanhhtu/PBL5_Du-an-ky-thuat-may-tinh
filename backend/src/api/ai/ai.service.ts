@@ -16,26 +16,29 @@ import { DeviceState } from '../../types/device.enum';
 
 class AIService {
   async convertAudioToWav(inputFilePath: string, outputDir: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const outputFilePath = path.resolve(outputDir, 'audio.wav');
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
-      }
-
-      ffmpeg.setFfmpegPath(ffmpegPath!);
-      ffmpeg(inputFilePath)
-        .toFormat('wav')
-        .audioCodec('pcm_s16le')
-        .audioFrequency(16000)
-        .on('end', () => {
-          resolve(outputFilePath);
-        })
-        .on('error', (err) => {
-          reject(new Error(`Failed to convert audio file: ${err.message}`));
-        })
-        .save(outputFilePath);
+    return errorHandlerFunc<string>(() => {
+      return new Promise((resolve, reject) => {
+        const outputFilePath = path.resolve(outputDir, 'audio.wav');
+  
+        if (!fs.existsSync(outputDir)) {
+          fs.mkdirSync(outputDir, { recursive: true });
+        }
+  
+        ffmpeg.setFfmpegPath(ffmpegPath!);
+        ffmpeg(inputFilePath)
+          .toFormat('wav')
+          .audioCodec('pcm_s16le')
+          .audioFrequency(16000)
+          .on('end', () => {
+            resolve(outputFilePath);
+          })
+          .on('error', (err) => {
+            reject(new Error(`Failed to convert audio file: ${err.message}`));
+          })
+          .save(outputFilePath);
+      });
     });
-  }
+  }  
   
   async transcribeAudio(filePath: string): Promise<any> {
     return errorHandlerFunc(async () => {
@@ -79,8 +82,8 @@ class AIService {
       await Promise.all(updatedDevices.map(async (updatedDevice) => {
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-        // // iot
-        // await deviceIot.controlDevice(updatedDevice.id, state);
+        // iot
+        await deviceIot.controlDevice(updatedDevice.id, state);
       }));
 
       const devicesInfo: IDevice[] = await Promise.all(
@@ -118,8 +121,8 @@ class AIService {
 
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-        // // iot
-        // await deviceIot.controlDevice(deviceId, state);
+        // iot
+        await deviceIot.controlDevice(deviceId, state);
 
         const deviceInfo = this.deviceInfo(updatedDevice);
         return {
@@ -148,6 +151,13 @@ class AIService {
         ? result.command_code 
         : -1;
       console.log(`Command Code: ${commandCode} - Command Message: ${COMMAND_MAP[commandCode]}`);
+
+      if(commandCode === -1) {
+        return {
+          data: 'Command code not found',
+          commandCode: commandCode,
+        }
+      }
 
       if(commandCode === 9 || commandCode === 10) {
         return await this.updateAllDevicesByCommandCode(commandCode, ipAddress);

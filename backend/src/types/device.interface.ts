@@ -23,3 +23,8 @@ export interface IAudioDevice {
   data: IDevice | IDevice[] | string;
   commandCode: number
 }
+
+export interface ITempHumid {
+  temperature: string;
+  humidity: string;
+}

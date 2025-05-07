@@ -102,8 +102,8 @@ class DeviceService {
 
       await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-      // // iot
-      // await deviceIot.controlDevice(id, state);
+      // iot
+      await deviceIot.controlDevice(id, state);
 
       const deviceInfo = this.deviceInfo(updatedDevice);
       return deviceInfo;
@@ -120,8 +120,8 @@ class DeviceService {
       await Promise.all(updatedDevices.map(async (updatedDevice) => {
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-        // // iot
-        // await deviceIot.controlDevice(updatedDevice.id, state);
+        // iot
+        await deviceIot.controlDevice(updatedDevice.id, state);
       }));
 
       const devicesInfo: IDevice[] = await Promise.all(

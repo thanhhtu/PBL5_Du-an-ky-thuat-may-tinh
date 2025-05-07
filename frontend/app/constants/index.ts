@@ -26,20 +26,20 @@ export const FONTSIZE = {
 };
 
 export const TEMPERATURE_LEVELS = [
-  { label: 'Freezing', value: 0 },
-  { label: 'Cold', value: 15 },
-  { label: 'Cool', value: 20 },
-  { label: 'Mild', value: 25 },
-  { label: 'Warm', value: 30 },
-  { label: 'Hot', value: 35 },
   { label: 'Very Hot', value: 40 },
+  { label: 'Hot', value: 35 },
+  { label: 'Warm', value: 30 },
+  { label: 'Mild', value: 25 },
+  { label: 'Cool', value: 20 },
+  { label: 'Cold', value: 15 },
+  { label: 'Freezing', value: 0 },
   { label: 'Scorching', value: Infinity },
 ];
 
 export const HUMIDITY_LEVELS = [
-  { label: 'Very Dry', value: 20 },
-  { label: 'Dry', value: 40 },
-  { label: 'Normal', value: 60 },
-  { label: 'Humid', value: 80 },
   { label: 'Very Humid', value: 100 },
+  { label: 'Humid', value: 80 },
+  { label: 'Normal', value: 60 },
+  { label: 'Dry', value: 40 },
+  { label: 'Very Dry', value: 20 },
 ];
