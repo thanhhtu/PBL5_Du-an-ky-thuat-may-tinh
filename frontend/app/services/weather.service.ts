@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import { io, Socket } from 'socket.io-client';
+import { ITempHumid } from '../types';
 
 class WeatherService{
   api: AxiosInstance;
@@ -7,6 +8,7 @@ class WeatherService{
   locationChangeCallbacks: ((loc: string) => void)[] = [];
   dateChangeCallbacks: ((date: string) => void)[] = [];
   timeOfDateChangeCallbacks: ((time: string) => void)[] = [];
+  tempHumidChangeCallbacks: ((tempHumid: ITempHumid) => void)[] = [];
 
   constructor(){
     this.api = axios.create({
@@ -32,6 +34,11 @@ class WeatherService{
       console.log('Client connected socket - time: ', this.socket.id);
       this.timeOfDateChangeCallbacks.forEach(callback => callback(time));
     });
+
+    this.socket.on('temp_humid_changed', (time: string) => {
+      console.log('Client connected socket - temp - humid: ', this.socket.id);
+      this.timeOfDateChangeCallbacks.forEach(callback => callback(time));
+    });
   }
 
   onLocationChange(callback: (loc: string) => void): () => void {
@@ -55,6 +62,14 @@ class WeatherService{
     
     return () => {
       this.timeOfDateChangeCallbacks = this.timeOfDateChangeCallbacks.filter(cb => cb !== callback);
+    };
+  }
+
+  onTempHumidChange(callback: (tempHumid: ITempHumid) => void): () => void {
+    this.tempHumidChangeCallbacks.push(callback);
+    
+    return () => {
+      this.tempHumidChangeCallbacks = this.tempHumidChangeCallbacks.filter(cb => cb !== callback);
     };
   }
 

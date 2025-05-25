@@ -10,12 +10,14 @@ export interface HeaderProps {
 export interface WeatherWidgetProps {
   location: string,
   date: string
+  tempHumid: ITempHumid
 }
 
 export interface HomeScreenProps {
   time: string,
   location: string,
   date: string,
+  tempHumid: ITempHumid
 }
 
 export interface BottomTabBarProps {
@@ -97,4 +99,9 @@ export type RootStackParamList = {
     location: string;
     date: string;
   };
+}
+
+export interface ITempHumid {
+  temperature: string;
+  humidity: string;
 }

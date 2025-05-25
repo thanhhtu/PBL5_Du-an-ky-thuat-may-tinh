@@ -16,24 +16,29 @@ class WeatherContentSocket {
   async emitLocationChange(): Promise<void> {
     return errorHandlerFunc(async () => {
       const location = await weatherContentService.getLocation();
-
       this.io.emit('location_changed', location);
     });
   }
 
   async emitDateChange(): Promise<void> {
     return errorHandlerFunc(async () => {
-      const date = await weatherContentService.getDate();
-
+      const date = weatherContentService.getDate();
       this.io.emit('date_changed', date);
     });
   }
 
   async emitTimeOfDateChange(): Promise<void> {
     return errorHandlerFunc(async () => {
-      const time = await weatherContentService.getTimeOfDay();
-
+      const time = weatherContentService.getTimeOfDay();
       this.io.emit('time_of_date_changed', time);
+    });
+  }
+
+  async emitTempHumidChange(): Promise<void> {
+    return errorHandlerFunc(async () => {
+      const tempHumid = await weatherContentService.getTempHumid();
+
+      this.io.emit('temp_humid_changed', tempHumid);
     });
   }
 }

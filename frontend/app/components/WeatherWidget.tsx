@@ -4,7 +4,7 @@ import { COLORS, FONTSIZE, HUMIDITY_LEVELS, TEMPERATURE_LEVELS } from '../consta
 import { WeatherWidgetProps } from '../types';
 import weatherService from '../services/weather.service';
 
-const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, date }) => {
+const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, date, tempHumid }) => {
   const [temperature, setTemperature] = useState<string>('');
   const [humidity, setHumidity] = useState<string>('');
   const [tempLevel, setTempLevel] = useState<string>('');
@@ -15,7 +15,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, date }) => {
 
   const fetchTempHumid = async() => {
     try{
-      const tempHumid = await weatherService.getTempHumid();
+      // const tempHumid = await weatherService.getTempHumid();
       setTemperature(tempHumid.temperature);
       setHumidity(tempHumid.humidity);
     }catch(error){
@@ -90,7 +90,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, date }) => {
           <Text style={[styles.label, styles.temperatureLabel]}>Temperature</Text>
           <View style={styles.temperatureContainer}>
             <Text style={styles.value}>{temperature}</Text>
-            <Text style={[styles.value, styles.degree]}>°</Text>
+            {(temperature !== 'None') && <Text style={[styles.value, styles.degree]}>°</Text>}
           </View>
           <Text style={[styles.level, styles.temperatureLevel]}>{tempLevel}</Text>
         </View>

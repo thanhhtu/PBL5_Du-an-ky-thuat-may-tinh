@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import BottomTabBar from '../components/BottomTabBar';
@@ -7,12 +7,17 @@ import { COLORS } from '../constants';
 import HomeScreen from './HomeScreen';
 import ProfileScreen from './ProfileScreen';
 import weatherService from '../services/weather.service';
+import { ITempHumid } from '../types';
 
 const MenuScreen = () => {
   const [time, setTime] = useState('');
   const [location, setLocation] = useState('');
   const [date, setDate] = useState('');
-    
+  const [tempHumid, setTempHumid] = useState<ITempHumid>({
+    temperature: 'None',
+    humidity: 'None'
+  });
+  
   useEffect(() => {
     const unsubscribe = weatherService.onTimeOfDateChange((time) => {
       setTime(time);
@@ -26,11 +31,16 @@ const MenuScreen = () => {
       setDate(date);
     });
 
+    const unsubscribeTempHumidChange = weatherService.onTempHumidChange((th) => {
+      setTempHumid(th);
+    });
+
     // Cleanup
     return () => {
       unsubscribe();
       unsubscribeLocationChange();
       unsubscribeDateChange();
+      unsubscribeTempHumidChange
     };
   }, []);
 
@@ -44,6 +54,7 @@ const MenuScreen = () => {
             time={time}
             location={location}
             date={date}
+            tempHumid={tempHumid}
           />);
       case 1:
         return <ProfileScreen />;
@@ -53,6 +64,7 @@ const MenuScreen = () => {
             time={time}
             location={location}
             date={date}
+            tempHumid={tempHumid}
           />);
     }
   };

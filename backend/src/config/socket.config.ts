@@ -22,6 +22,16 @@ const socketConfig = (server: HttpServer) => {
     await weatherContentSocket.emitDateChange();
     await weatherContentSocket.emitTimeOfDateChange();
 
+    setInterval(async () => {
+      await weatherContentSocket.emitLocationChange();
+    }, 100000);
+    setInterval(async () => {
+      await weatherContentSocket.emitDateChange();
+    }, 60000);
+    setInterval(async () => {
+      await weatherContentSocket.emitTimeOfDateChange();
+    }, 60000);
+
     socket.on('disconnect', (reason) => {
       console.log(`Client disconnected: ${socket.id}, Reason: ${reason}`);
       connectedSockets.delete(socket);
