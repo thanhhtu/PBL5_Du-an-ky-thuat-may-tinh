@@ -43,7 +43,7 @@ import routers from './api';
 import errorHandler from './middlewares/errorHandler.middleware';
 import urlValidateMiddleware from './middlewares/urlValidate.middleware';
 import { socketConfig } from './config/socket.config';
-import { initializeEsp32Connector } from './iot/iot.connector';
+import { initializeEsp32Connector } from './iot/socket.iot';
 
 const app = express();
 const server = http.createServer(app);
@@ -66,7 +66,7 @@ const port = process.env.PORT || 3000;
 server.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 
-  // initializeEsp32Connector();
+  initializeEsp32Connector();
   console.log('ESP32 WebSocket connector initialized.');
 });
 

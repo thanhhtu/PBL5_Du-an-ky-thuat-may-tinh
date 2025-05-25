@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { errorHandlerFunc } from './errorHandler.provider';
-import { getLatestEsp32Data } from '../iot/iot.connector';
+import { getLatestEsp32Data } from '../iot/socket.iot';
 import { ITempHumid } from '../types/device.interface';
 
 class WeatherContentProvider {

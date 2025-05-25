@@ -1,4 +1,4 @@
-import { getLatestEsp32Data } from '../../iot/iot.connector';
+import { getLatestEsp32Data } from '../../iot/socket.iot';
 import weatherContentIot from '../../iot/weatherContent.iot';
 import { errorHandlerFunc } from '../../providers/errorHandler.provider';
 import { ITempHumid } from '../../types/device.interface';
