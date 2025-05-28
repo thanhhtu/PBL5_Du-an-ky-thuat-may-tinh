@@ -1,77 +1,136 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback, memo } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { COLORS, FONTSIZE, HUMIDITY_LEVELS, TEMPERATURE_LEVELS } from '../constants';
 import { WeatherWidgetProps } from '../types';
 import weatherService from '../services/weather.service';
 
-const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, date, tempHumid }) => {
+const WeatherWidget: React.FC<WeatherWidgetProps> = memo(({ location, date, tempHumid }) => {
   const [temperature, setTemperature] = useState<string>('');
   const [humidity, setHumidity] = useState<string>('');
   const [tempLevel, setTempLevel] = useState<string>('');
   const [humidLevel, setHumidLevel] = useState<string>('');
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+  const isSetupRef = useRef(false);
 
-  const fetchTempHumid = async() => {
-    try{
-      // const tempHumid = await weatherService.getTempHumid();
-      setTemperature(tempHumid.temperature);
-      setHumidity(tempHumid.humidity);
-    }catch(error){
-      if (error instanceof Error) {
-        setError(error.message || 'Network error when fetching devices');
-      } else {
-        setError('An unknown error occurred');
-      }
-    }finally{
-      setLoading(false);
-    }
-  };
-
-  function checkTempLevel (temp: number) {
+  const checkTempLevel = useCallback((temp: number) => {
     for(let level of TEMPERATURE_LEVELS){
       if(temp <= level.value){
         return level.label;
       }
     }
     return 'Unknown';
-  }
+  }, []);
 
-  function checkHumidLevel (humid: number) {
+  const checkHumidLevel = useCallback((humid: number) => {
     for(let level of HUMIDITY_LEVELS){
       if(humid <= level.value){
         return level.label;
       }
     }
     return 'Unknown';
-  }
+  }, []);
 
+  const updateTempHumidData = useCallback((newTempHumid: any) => {
+    if (newTempHumid.temperature && newTempHumid.humidity) {
+      setTemperature(newTempHumid.temperature);
+      setHumidity(newTempHumid.humidity);
+      setTempLevel(checkTempLevel(Number(newTempHumid.temperature)));
+      setHumidLevel(checkHumidLevel(Number(newTempHumid.humidity)));
+      setLoading(false);
+      setError(null);
+    }
+  }, [checkTempLevel, checkHumidLevel]);
+
+  const fetchTempHumid = useCallback(async() => {
+    try{
+      setLoading(true);
+      setError(null);
+      
+      if (tempHumid.temperature && tempHumid.humidity && tempHumid.temperature !== 'None') {
+        updateTempHumidData(tempHumid);
+      } else {
+        const data = await weatherService.getTempHumid();
+        const tempData = {
+          temperature: data.temperature || 'N/A',
+          humidity: data.humidity || 'N/A'
+        };
+        updateTempHumidData(tempData);
+      }
+      
+      setLoading(false);
+    }catch(error){
+      if (error instanceof Error) {
+        setError(error.message || 'Network error when fetching devices');
+      } else {
+        setError('An unknown error occurred');
+      }
+      setLoading(false);
+    }
+  }, [tempHumid.temperature, tempHumid.humidity, updateTempHumidData]);
+
+  // Setup socket listener chỉ MỘT LẦN khi component mount
   useEffect(() => {
-    fetchTempHumid();
+    if (!isSetupRef.current) {
+      console.log('WeatherWidget: Setting up socket listener once...');
+      
+      unsubscribeRef.current = weatherService.onTempHumidChange((newTempHumid) => {
+        console.log('WeatherWidget received socket update:', newTempHumid);
+        updateTempHumidData(newTempHumid);
+      });
 
-    setTempLevel(checkTempLevel(Number(temperature)));
-    setHumidLevel(checkHumidLevel(Number(humidity)));
+      fetchTempHumid();
+      isSetupRef.current = true;
+    }
+
+    // Cleanup chỉ khi component thực sự unmount
+    return () => {
+      if (unsubscribeRef.current && !isSetupRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+    };
+  }, []); // Empty dependencies - chỉ chạy khi mount/unmount
+
+  // Update từ props (không setup lại socket)
+  useEffect(() => {
+    if (tempHumid.temperature && tempHumid.humidity && tempHumid.temperature !== 'None') {
+      updateTempHumidData(tempHumid);
+    }
+  }, [tempHumid.temperature, tempHumid.humidity, updateTempHumidData]);
+
+  // Final cleanup khi component unmount
+  useEffect(() => {
+    return () => {
+      if (unsubscribeRef.current) {
+        console.log('WeatherWidget: Final cleanup...');
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+        isSetupRef.current = false;
+      }
+    };
   }, []);
 
   if (loading) {
-      return (
-        <View style={[styles.container, styles.centered]}>
-          <ActivityIndicator size='large' color={COLORS.yellow} />
-        </View>
-      );
-    }
-  
-    if (error) {
-      return (
-        <View style={[styles.container, styles.centered]}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchTempHumid}>
-            <Text style={styles.retryText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
-      );
-    }
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <ActivityIndicator size='large' color={COLORS.yellow} />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={fetchTempHumid}>
+          <Text style={styles.retryText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -90,20 +149,31 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, date, tempHumid
           <Text style={[styles.label, styles.temperatureLabel]}>Temperature</Text>
           <View style={styles.temperatureContainer}>
             <Text style={styles.value}>{temperature}</Text>
-            {(temperature !== 'None') && <Text style={[styles.value, styles.degree]}>°</Text>}
+            {(temperature !== 'None' && temperature !== 'N/A') && <Text style={[styles.value, styles.degree]}>°</Text>}
           </View>
           <Text style={[styles.level, styles.temperatureLevel]}>{tempLevel}</Text>
         </View>
         
         <View style={styles.rightSection}>
           <Text style={[styles.label, styles.humidityLabel]}>Humidity</Text>
-          <Text style={[styles.value, styles.humidityValue]}>{humidity}</Text>
+          <Text style={[styles.value, styles.humidityValue]}>
+            {humidity}{(humidity !== 'N/A' && humidity !== 'None') && '%'}
+          </Text>
           <Text style={[styles.level, styles.humidityLevel]}>{humidLevel}</Text>
         </View>
       </View>
     </View>
   );
-};
+}, (prevProps, nextProps) => {
+  // Strict comparison để tránh re-render không cần thiết
+  return (
+    prevProps.location === nextProps.location &&
+    prevProps.date === nextProps.date &&
+    prevProps.tempHumid.temperature === nextProps.tempHumid.temperature &&
+    prevProps.tempHumid.humidity === nextProps.tempHumid.humidity
+  );
+});
+
 
 const styles = StyleSheet.create({
   container: {

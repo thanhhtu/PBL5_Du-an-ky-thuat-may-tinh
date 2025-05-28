@@ -6,7 +6,7 @@ import aiRoute from './ai/ai.router';
 const router = express.Router();
 
 router.use('/devices', deviceRoute);
-router.use('/temp-humid', weatherContextRoute);
+router.use('/weatherContext', weatherContextRoute);
 router.use('/ai', aiRoute);
 
 export default router;

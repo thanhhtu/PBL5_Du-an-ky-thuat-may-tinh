@@ -3,7 +3,6 @@ import weatherContentSocket from '../socket/weatherContent.socket'; // To push u
 import { ITempHumid } from '../types/device.interface';
 import 'dotenv/config';
 
-// IMPORTANT: Replace with your ESP32's actual IP address
 let latestTempHumid: ITempHumid = {
   temperature: '',
   humidity: '',
@@ -12,8 +11,8 @@ let latestTempHumid: ITempHumid = {
 let wsClient: WebSocket | null = null;
 
 function connectToEsp32() {
-  if(!process.env.AI_SERVER_SOCKET_URI) {
-    console.error('AI_SERVER_SOCKET_URI is not defined in environment variables.');
+  if(!process.env.AXIOS_IOT_URI) {
+    console.error('AXIOS_IOT_URI is not defined in environment variables.');
     return;
   }
 
@@ -22,15 +21,11 @@ function connectToEsp32() {
     return;
   }
 
-  console.log(`Attempting to connect to ESP32 WebSocket at ${process.env.AI_SERVER_SOCKET_URI}`);
-  wsClient = new WebSocket(process.env.AI_SERVER_SOCKET_URI);
+  console.log(`Attempting to connect to ESP32 WebSocket at ${process.env.AXIOS_IOT_URI}`);
+  wsClient = new WebSocket(process.env.AXIOS_IOT_URI);
 
   wsClient.on('open', () => {
     console.log('Successfully connected to ESP32 WebSocket.');
-    latestTempHumid = { 
-      temperature: '',
-      humidity: '',
-    };
   });
 
   wsClient.on('message', (data: WebSocket.Data) => {
@@ -46,13 +41,12 @@ function connectToEsp32() {
         };
       } else if (parsedData.temperature !== undefined && parsedData.humidity !== undefined) {
         latestTempHumid = {
-          temperature: '',
-          humidity: '',
+          temperature: parsedData.temperature.toString(),
+          humidity: parsedData.humidity.toString(),
         };
-        // console.log('Received from ESP32:', latestTempHumid);
+        console.log('Received from ESP32:', latestTempHumid);
 
         // --- Real-time push to frontend clients via backend's Socket.IO ---
-        // Ensure weatherContentSocket.io is initialized before trying to emit
         if (weatherContentSocket.io) {
             weatherContentSocket.io.emit('temp_humid_updated', latestTempHumid);
         } else {

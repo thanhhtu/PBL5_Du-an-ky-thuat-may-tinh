@@ -4,11 +4,13 @@ import { ITempHumid } from '../types';
 
 class WeatherService{
   api: AxiosInstance;
-  socket: Socket;
+  socket: Socket | null = null;
   locationChangeCallbacks: ((loc: string) => void)[] = [];
   dateChangeCallbacks: ((date: string) => void)[] = [];
   timeOfDateChangeCallbacks: ((time: string) => void)[] = [];
   tempHumidChangeCallbacks: ((tempHumid: ITempHumid) => void)[] = [];
+  private isConnected = false;
+  private isInitialized = false;
 
   constructor(){
     this.api = axios.create({
@@ -18,31 +20,60 @@ class WeatherService{
       }
     });
 
-    this.socket = io(process.env.EXPO_PUBLIC_API_BASE_URL);
+    // Initialize socket immediately and only once
+    if (!this.isInitialized) {
+      this.initializeSocket();
+      this.isInitialized = true;
+    }
+  }
+
+  private initializeSocket() {
+    if (this.socket && this.isConnected) {
+      console.log('Socket already connected, skipping initialization');
+      return;
+    }
+
+    console.log('Initializing WeatherService socket connection...');
+
+    this.socket = io(process.env.EXPO_PUBLIC_API_BASE_URL, {
+      autoConnect: true,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
+
+    this.socket.on('connect', () => {
+      console.log('WeatherService socket connected:', this.socket?.id);
+      this.isConnected = true;
+    });
+
+    this.socket.on('disconnect', () => {
+      console.log('WeatherService socket disconnected');
+      this.isConnected = false;
+    });
 
     this.socket.on('location_changed', (loc: string) => {
-      console.log('Client connected socket - location: ', this.socket.id);
       this.locationChangeCallbacks.forEach(callback => callback(loc));
     });
 
     this.socket.on('date_changed', (date: string) => {
-      console.log('Client connected socket - date: ', this.socket.id);
       this.dateChangeCallbacks.forEach(callback => callback(date));
     });
 
     this.socket.on('time_of_date_changed', (time: string) => {
-      console.log('Client connected socket - time: ', this.socket.id);
       this.timeOfDateChangeCallbacks.forEach(callback => callback(time));
     });
 
-    this.socket.on('temp_humid_changed', (time: string) => {
-      console.log('Client connected socket - temp - humid: ', this.socket.id);
-      this.timeOfDateChangeCallbacks.forEach(callback => callback(time));
+    this.socket.on('temp_humid_updated', (tempHumid: ITempHumid) => {
+      this.tempHumidChangeCallbacks.forEach(callback => callback(tempHumid));
     });
   }
 
   onLocationChange(callback: (loc: string) => void): () => void {
-    this.locationChangeCallbacks.push(callback);
+    // Prevent duplicate callbacks
+    if (!this.locationChangeCallbacks.includes(callback)) {
+      this.locationChangeCallbacks.push(callback);
+    }
     
     return () => {
       this.locationChangeCallbacks = this.locationChangeCallbacks.filter(cb => cb !== callback);
@@ -50,7 +81,9 @@ class WeatherService{
   }
 
   onDateChange(callback: (date: string) => void): () => void {
-    this.dateChangeCallbacks.push(callback);
+    if (!this.dateChangeCallbacks.includes(callback)) {
+      this.dateChangeCallbacks.push(callback);
+    }
     
     return () => {
       this.dateChangeCallbacks = this.dateChangeCallbacks.filter(cb => cb !== callback);
@@ -58,7 +91,9 @@ class WeatherService{
   }
 
   onTimeOfDateChange(callback: (time: string) => void): () => void {
-    this.timeOfDateChangeCallbacks.push(callback);
+    if (!this.timeOfDateChangeCallbacks.includes(callback)) {
+      this.timeOfDateChangeCallbacks.push(callback);
+    }
     
     return () => {
       this.timeOfDateChangeCallbacks = this.timeOfDateChangeCallbacks.filter(cb => cb !== callback);
@@ -66,7 +101,9 @@ class WeatherService{
   }
 
   onTempHumidChange(callback: (tempHumid: ITempHumid) => void): () => void {
-    this.tempHumidChangeCallbacks.push(callback);
+    if (!this.tempHumidChangeCallbacks.includes(callback)) {
+      this.tempHumidChangeCallbacks.push(callback);
+    }
     
     return () => {
       this.tempHumidChangeCallbacks = this.tempHumidChangeCallbacks.filter(cb => cb !== callback);
@@ -74,19 +111,27 @@ class WeatherService{
   }
 
   disconnectSocket() {
-    console.log('Client disconnected');
-    this.socket.off('device_state_changed');
+    if (this.socket) {
+      console.log('Disconnecting WeatherService socket...');
+      this.socket.disconnect();
+      this.socket = null;
+      this.isConnected = false;
+      this.isInitialized = false;
+    }
+    
+    // Clear all callbacks
+    this.locationChangeCallbacks = [];
     this.dateChangeCallbacks = [];
+    this.timeOfDateChangeCallbacks = [];
+    this.tempHumidChangeCallbacks = [];
   }
   
   async getTempHumid(): Promise<any>{
     try{
-      const res = await this.api.get('/temp-humid');
+      const res = await this.api.get('/weatherContext');
       if(!res.data.success){
         throw new Error('Failed to fetch data');
       }
-
-      console.log('data: ', res.data.data);
 
       return res.data.data;
     }catch(error){

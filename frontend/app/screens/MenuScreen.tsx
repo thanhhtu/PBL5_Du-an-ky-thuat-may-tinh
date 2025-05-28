@@ -40,7 +40,7 @@ const MenuScreen = () => {
       unsubscribe();
       unsubscribeLocationChange();
       unsubscribeDateChange();
-      unsubscribeTempHumidChange
+      unsubscribeTempHumidChange();
     };
   }, []);
 
