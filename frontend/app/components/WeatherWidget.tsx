@@ -52,10 +52,9 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = memo(({ location, date, temp
       if (tempHumid.temperature && tempHumid.humidity && tempHumid.temperature !== 'None') {
         updateTempHumidData(tempHumid);
       } else {
-        const data = await weatherService.getTempHumid();
         const tempData = {
-          temperature: data.temperature || 'N/A',
-          humidity: data.humidity || 'N/A'
+          temperature: 'N/A',
+          humidity: 'N/A'
         };
         updateTempHumidData(tempData);
       }
@@ -71,7 +70,6 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = memo(({ location, date, temp
     }
   }, [tempHumid.temperature, tempHumid.humidity, updateTempHumidData]);
 
-  // Setup socket listener chỉ MỘT LẦN khi component mount
   useEffect(() => {
     if (!isSetupRef.current) {
       console.log('WeatherWidget: Setting up socket listener once...');
@@ -157,7 +155,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = memo(({ location, date, temp
         <View style={styles.rightSection}>
           <Text style={[styles.label, styles.humidityLabel]}>Humidity</Text>
           <Text style={[styles.value, styles.humidityValue]}>
-            {humidity}{(humidity !== 'N/A' && humidity !== 'None') && '%'}
+            {humidity}{(humidity !== 'N/A' && humidity !== 'None') && <Text style={[styles.value, styles.percent]}>%</Text>}
           </Text>
           <Text style={[styles.level, styles.humidityLevel]}>{humidLevel}</Text>
         </View>
@@ -165,7 +163,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = memo(({ location, date, temp
     </View>
   );
 }, (prevProps, nextProps) => {
-  // Strict comparison để tránh re-render không cần thiết
+  // Strict comparison
   return (
     prevProps.location === nextProps.location &&
     prevProps.date === nextProps.date &&
@@ -257,7 +255,8 @@ const styles = StyleSheet.create({
   
   leftSection: {
     // flex: 1,
-    width: '50%',
+    width: '45%',
+    marginRight: 5,
   },
 
   rightSection: {
@@ -294,6 +293,11 @@ const styles = StyleSheet.create({
   degree: {
     color: COLORS.black,
     lineHeight: 50,
+  },
+
+  percent: {
+    color: COLORS.white,
+    fontSize: 30,
   },
 
   humidityValue: {

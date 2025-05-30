@@ -128,8 +128,6 @@ class DeviceService {
         updatedDevices.map((device) => this.deviceInfo(device))
       );
 
-      console.log('Device - Updated devices:', devicesInfo);
-
       return devicesInfo;
     });
   }

@@ -4,7 +4,7 @@
     "slug": "SmartHome",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./app/assets/images/system/icon.png",
+    "icon": "./app/assets/icons/home-logo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,21 +13,21 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./app/assets/images/system/adaptive-icon.png",
+        "foregroundImage": "./app/assets/icons/home-logo.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./app/assets/images/system/favicon.png"
+      "favicon": "./app/assets/icons/home-logo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./app/assets/images/system/splash-icon.png",
+          "image": "./app/assets/icons/home-logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

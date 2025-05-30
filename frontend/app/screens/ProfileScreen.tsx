@@ -9,23 +9,16 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../types'; // Import the centralized type
+import { COLORS } from '../constants';
 
 const deviceActivities = [
   {
-    room: 'Bedroom',
-    description: 'Aircondition working to last 5 hour in bedroom.',
-    icon: 'bed-outline',
-    time: 'Yesterday',
-    screen: 'ProfileDetailScreen'
-  },
-  {
-    room: 'Kids room',
+    title: 'Operational Status',
     description: 'Music system working to last 5 hour in kids room.',
     icon: 'musical-notes-outline',
-    time: 'Yesterday',
-    screen: 'DeviceListScreen'
+    screen: 'DeviceStatusListScreen'
   },
   {
     room: 'Kitchen',
@@ -45,11 +38,8 @@ const ProfileScreen = () => {
   // Helper function to handle navigation with proper type checking
   const navigateToScreen = (screenName: string) => {
     switch (screenName) {
-      case 'ProfileDetailScreen':
-        navigation.navigate('ProfileDetailScreen');
-        break;
-      case 'DeviceListScreen':
-        navigation.navigate('DeviceListScreen');
+      case 'DeviceStatusListScreen':
+        navigation.navigate('DeviceStatusListScreen');
         break;
       case 'DeviceHistoryScreen':
         navigation.navigate('DeviceHistoryScreen');
@@ -62,17 +52,6 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Profile header */}
-      <View style={styles.profileHeader}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.profileTitle}>Profile</Text>
-        <TouchableOpacity onPress={() => {}}>
-          <Icon name="create-outline" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-
       {/* Device activities */}
       <ScrollView style={styles.activitiesContainer}>
         {deviceActivities.map((activity, index) => (
@@ -82,10 +61,10 @@ const ProfileScreen = () => {
             onPress={() => navigateToScreen(activity.screen)}
           >
             <View style={styles.activityIconContainer}>
-              <Icon name={activity.icon} size={24} color="#666" />
+              <Ionicons name="close-circle" size={20} color="#888" />
             </View>
             <View style={styles.activityTextContainer}>
-              <Text style={styles.activityRoom}>{activity.room}</Text>
+              <Text style={styles.activityRoom}>{activity.title}</Text>
               <Text style={styles.activityDescription}>
                 {activity.description}
               </Text>
@@ -101,8 +80,11 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F0F2F5'
+    marginTop: 20,
+    marginBottom: 24,
+    paddingHorizontal: 15,
   },
+
   profileHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -110,13 +92,16 @@ const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: 'white'
   },
+
   profileTitle: {
     fontSize: 18,
     fontWeight: 'bold'
   },
+
   activitiesContainer: {
-    marginTop: 10
+    marginTop: 10,
   },
+
   activityItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -124,7 +109,10 @@ const styles = StyleSheet.create({
     padding: 15,
     marginVertical: 5,
     marginHorizontal: 10,
-    borderRadius: 10
+    
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
   },
   activityIconContainer: {
     marginRight: 15

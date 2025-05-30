@@ -1,7 +1,5 @@
 import axios from 'axios';
 import { errorHandlerFunc } from './errorHandler.provider';
-import { getLatestEsp32Data } from '../iot/socket.iot';
-import { ITempHumid } from '../types/device.interface';
 
 class WeatherContentProvider {
   async getLocation(): Promise<string> {
@@ -37,16 +35,6 @@ class WeatherContentProvider {
       time = 'Evening';
     }
     return time;
-  }
-
-  async getTempHumid(): Promise<ITempHumid> {
-    return errorHandlerFunc(async () => {
-      const data = getLatestEsp32Data();
-      if (data.temperature === '' || data.humidity === '') {
-        console.warn('getTempHumid called, but temperature/humidity data is not yet available from ESP32.');
-      }      
-      return data;
-    });
   }
 }
 

@@ -92,7 +92,7 @@ export type RootStackParamList = {
   Menu: undefined;
   ProfileScreen: undefined;
   ProfileDetailScreen: undefined;
-  DeviceListScreen: undefined;
+  DeviceStatusListScreen: undefined;
   DeviceHistoryScreen: undefined;
   HomeScreen: {
     time: string;

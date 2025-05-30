@@ -13,11 +13,11 @@ import { NavigationProp } from '@react-navigation/native';
 import { Device } from '../types';
 import deviceService from '../services/device.service';
 
-interface DeviceListScreenProps {
+interface DeviceStatusListScreenProps {
   navigation: NavigationProp<any>;
 }
 
-const DeviceListScreen: React.FC<DeviceListScreenProps> = ({ navigation }) => {
+const DeviceStatusListScreen: React.FC<DeviceStatusListScreenProps> = ({ navigation }) => {
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -133,4 +133,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default DeviceListScreen;
+export default DeviceStatusListScreen;

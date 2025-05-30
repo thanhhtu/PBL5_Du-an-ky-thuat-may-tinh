@@ -95,7 +95,7 @@ const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onTabChange }) =
         disabled={isRecording}
       >
         <Image
-          source={require('../assets/icons/profile.png')}
+          source={require('../assets/icons/bars.png')}
           style={[styles.iconProfile, activeTab === 1 && !isRecording && styles.activeIcon, isRecording && styles.disabledIcon]}
         />
       </TouchableOpacity>

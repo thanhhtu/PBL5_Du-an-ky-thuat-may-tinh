@@ -17,7 +17,7 @@ export const COLORS = {
 };
 
 export const FONTSIZE = {
-  xLarge: 38,
+  xLarge: 37,
   huge: 25,
   large: 20,
   medium: 18,
