@@ -8,7 +8,7 @@ import { DeviceLog } from '../../models/entities/DeviceLog';
 import deviceLogRepo from '../../models/repositories/deviceLog.repo';
 import { DeviceState } from '../../types/device.enum';
 import deviceSocket from '../../socket/device.socket';
-import deviceIot from '../../iot/device.iot';
+import httpIot from '../../iot/http.iot';
 
 class DeviceService {
   deviceInfo(device: Device): IDevice {
@@ -103,7 +103,7 @@ class DeviceService {
       await deviceSocket.emitDeviceStateChange(updatedDevice);
 
       // // iot
-      // await deviceIot.controlDevice(id, state);
+      // await httpIot.controlDevice(id, state);
 
       const deviceInfo = this.deviceInfo(updatedDevice);
       return deviceInfo;
@@ -121,7 +121,7 @@ class DeviceService {
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
         // // iotDevice state changed receive
-        // deviceIot.controlDevice(updatedDevice.id, state);
+        // httpIot.controlDevice(updatedDevice.id, state);
       }));
 
       const devicesInfo: IDevice[] = await Promise.all(

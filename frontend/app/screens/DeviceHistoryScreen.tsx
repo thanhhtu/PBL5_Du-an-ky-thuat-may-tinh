@@ -29,7 +29,7 @@ const DeviceHistoryScreen = () => {
   const [deviceLogs, setDeviceLogs] = useState<DeviceLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [viewMode, setViewMode] = useState<'daily' | '7days'>('daily'); // 'daily' ở đây sẽ là "Theo thiết bị trong ngày"
+  const [viewMode, setViewMode] = useState<'daily' | '7days'>('daily');
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -67,7 +67,7 @@ const DeviceHistoryScreen = () => {
 
   const getWeeklyData = () => {
     const currentTime = new Date();
-    // Điều chỉnh ngày bắt đầu của tuần để lấy 7 ngày tính từ ngày cuối tuần
+    // Adjust the start date of the week to take 7 days from the weekend
     const endOfWeek = new Date(currentTime);
     endOfWeek.setDate(currentTime.getDate() - (weekOffset * 7));
     endOfWeek.setHours(23, 59, 59, 999);

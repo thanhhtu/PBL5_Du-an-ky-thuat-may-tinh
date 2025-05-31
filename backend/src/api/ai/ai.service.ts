@@ -8,7 +8,7 @@ import deviceRepo from '../../models/repositories/device.repo';
 import CustomError from '../../providers/customError.provider';
 import { StatusCodes } from 'http-status-codes';
 import deviceSocket from '../../socket/device.socket';
-import deviceIot from '../../iot/device.iot';
+import httpIot from '../../iot/http.iot';
 import { Device } from '../../models/entities/Device';
 import { IAudioDevice, IDevice } from '../../types/device.interface';
 import ffmpegPath from 'ffmpeg-static';
@@ -83,7 +83,7 @@ class AIService {
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
         // // iot
-        // await deviceIot.controlDevice(updatedDevice.id, state);
+        // await httpIot.controlDevice(updatedDevice.id, state);
       }));
 
       const devicesInfo: IDevice[] = await Promise.all(
@@ -122,7 +122,7 @@ class AIService {
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
         // // iot
-        // await deviceIot.controlDevice(deviceId, state);
+        // await httpIot.controlDevice(deviceId, state);
 
         const deviceInfo = this.deviceInfo(updatedDevice);
         return {
