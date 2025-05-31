@@ -22,7 +22,7 @@ class DeviceLogRepo {
       if (!ipAddress) {
         ipAddress = 'unknown';
       }
-      const deviceLog = await this.deviceLogRepo.create({
+      const deviceLog = this.deviceLogRepo.create({
         device,
         action,
         previousState,
@@ -33,9 +33,9 @@ class DeviceLogRepo {
     });
   }
 
-  async getDeviceLogs(deviceId: number): Promise<DeviceLog[]> {
+  async getLogsByDeviceId(deviceId: number): Promise<DeviceLog[]> {
     return errorHandlerFunc(async () => {
-      return this.deviceLogRepo.find({
+      return await this.deviceLogRepo.find({
         where: { device: { id: deviceId } },
         relations: ['device'],
         order: { timestamp: 'DESC' },

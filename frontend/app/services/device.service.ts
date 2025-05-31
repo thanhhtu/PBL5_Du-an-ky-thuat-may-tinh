@@ -123,7 +123,7 @@ class DeviceService {
     }
   }
 
-  async getDeviceLogs(id: number): Promise<DeviceLog[]> {
+  async getLogsByDeviceId(id: number): Promise<DeviceLog[]> {
     try {
       const response = await this.api.get(`/devices/${id}/logs`);
       

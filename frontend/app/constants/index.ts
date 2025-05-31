@@ -8,6 +8,7 @@ export const COLORS = {
   darkGreen: '#4B8F8D',
   green: '#74B6B4',
   lightGreen: '#9FC9C4',
+  brightGreen: '#5F8B4C',
 
   yellowGradient: ['#FEF4EB', '#FFFFFF'] as readonly [string, string], 
   yellow: '#EBB970',

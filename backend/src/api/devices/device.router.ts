@@ -29,7 +29,7 @@ route.route('/:id')
     deviceController.deleteDevice
   );
 
-route.get('/:id/logs', deviceController.getDeviceLogs);
+route.get('/:id/logs', deviceController.getLogsByDeviceId);
 
 route.patch('/:id/state',
   urlValidateMiddleware.id,

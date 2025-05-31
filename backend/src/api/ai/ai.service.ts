@@ -82,8 +82,8 @@ class AIService {
       await Promise.all(updatedDevices.map(async (updatedDevice) => {
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-        // iot
-        await deviceIot.controlDevice(updatedDevice.id, state);
+        // // iot
+        // await deviceIot.controlDevice(updatedDevice.id, state);
       }));
 
       const devicesInfo: IDevice[] = await Promise.all(
@@ -121,8 +121,8 @@ class AIService {
 
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-        // iot
-        await deviceIot.controlDevice(deviceId, state);
+        // // iot
+        // await deviceIot.controlDevice(deviceId, state);
 
         const deviceInfo = this.deviceInfo(updatedDevice);
         return {

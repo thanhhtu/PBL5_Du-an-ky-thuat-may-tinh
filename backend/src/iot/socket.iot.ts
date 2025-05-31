@@ -61,6 +61,9 @@ class IotConnector {
       this.socketClient.on('connect', () => {
         console.log('Successfully connected to IoT Socket.IO server.');
         console.log('Socket ID:', this.socketClient?.id);
+        
+        console.log(this.latestData)
+        weatherContentSocket.emitTempHumidChange(this.latestData);
       });
 
       this.socketClient.on('disconnect', (reason) => {
@@ -81,7 +84,6 @@ class IotConnector {
         console.log(`IoT Socket.IO reconnected after ${attemptNumber} attempts.`);
       });
 
-      // Chỉ lắng nghe sự kiện temp_humid_updated
       this.socketClient.on('temp_humid_updated', this.handleTempHumidUpdated);
     });
   }

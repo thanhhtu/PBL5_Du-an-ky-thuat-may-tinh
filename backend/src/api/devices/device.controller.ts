@@ -58,10 +58,10 @@ class DeviceController {
     }
   }
 
-  async getDeviceLogs(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getLogsByDeviceId(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const id = Number(req.params.id);
-      const logs = await deviceService.getDeviceLogs(id);
+      const logs = await deviceService.getLogsByDeviceId(id);
 
       res.status(StatusCodes.OK).json({
         success: true,

@@ -81,11 +81,11 @@ class DeviceService {
     });
   }
 
-  async getDeviceLogs(id: number): Promise<IDeviceLog[]> {
+  async getLogsByDeviceId(id: number): Promise<IDeviceLog[]> {
     return errorHandlerFunc(async () => {
       await this.getDeviceById(id);
 
-      const logs = await deviceLogRepo.getDeviceLogs(id);
+      const logs = await deviceLogRepo.getLogsByDeviceId(id);
 
       return await Promise.all(logs.map((log) => this.deviceLogInfo(log)));
     });
@@ -102,8 +102,8 @@ class DeviceService {
 
       await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-      // iot
-      await deviceIot.controlDevice(id, state);
+      // // iot
+      // await deviceIot.controlDevice(id, state);
 
       const deviceInfo = this.deviceInfo(updatedDevice);
       return deviceInfo;
@@ -120,8 +120,8 @@ class DeviceService {
       await Promise.all(updatedDevices.map(async (updatedDevice) => {
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-        // iot
-        await deviceIot.controlDevice(updatedDevice.id, state);
+        // // iotDevice state changed receive
+        // deviceIot.controlDevice(updatedDevice.id, state);
       }));
 
       const devicesInfo: IDevice[] = await Promise.all(

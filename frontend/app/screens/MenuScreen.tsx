@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import BottomTabBar from '../components/BottomTabBar';
 import { COLORS } from '../constants';
 import HomeScreen from './HomeScreen';
-import ProfileScreen from './ProfileScreen';
+import StatisticsScreen from './StatisticsScreen';
 import weatherService from '../services/weather.service';
 import { ITempHumid } from '../types';
 
@@ -57,7 +57,7 @@ const MenuScreen = () => {
             tempHumid={tempHumid}
           />);
       case 1:
-        return <ProfileScreen />;
+        return <StatisticsScreen />;
       default:
         return (
           <HomeScreen 

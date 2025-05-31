@@ -61,14 +61,16 @@ class SocketManager {
   }
 
   async emitInitialWeatherDataToSocket(): Promise<void> {
-    await Promise.all([
-      weatherContentSocket.emitLocationChange(),
-      weatherContentSocket.emitDateChange(),
-      weatherContentSocket.emitTimeOfDateChange(),
-    ]);
+    console.log('Emitting initial weather data to new socket');
+
+    await weatherContentSocket.emitLocationChange();
+    await weatherContentSocket.emitDateChange();
+    await weatherContentSocket.emitTimeOfDateChange();
   }
 
   setupGlobalIntervals(): void {
+    console.log('Interval weather data to new socket');
+
     // Only create intervals once, not per socket
     if (this.globalIntervals.size > 0) {
       return; // Already setup
@@ -83,7 +85,7 @@ class SocketManager {
       } catch (error) {
         console.error('Error emitting location change:', error);
       }
-    }, 100000); 
+    }, 600000); // 10 minutes
 
     // Date update interval
     const dateInterval = setInterval(async () => {
@@ -94,7 +96,7 @@ class SocketManager {
       } catch (error) {
         console.error('Error emitting date change:', error);
       }
-    }, 60000);
+    }, 60000); // 1 minute
 
     // Time update interval
     const timeInterval = setInterval(async () => {
@@ -105,7 +107,7 @@ class SocketManager {
       } catch (error) {
         console.error('Error emitting time change:', error);
       }
-    }, 60000);
+    }, 60000); // 1 minute
 
     // Store global intervals
     this.globalIntervals.set('location', locationInterval);

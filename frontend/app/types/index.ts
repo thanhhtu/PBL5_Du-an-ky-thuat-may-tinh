@@ -90,8 +90,7 @@ export enum DeviceAction {
 // Navigation Types
 export type RootStackParamList = {
   Menu: undefined;
-  ProfileScreen: undefined;
-  ProfileDetailScreen: undefined;
+  StatisticsScreen: undefined;
   DeviceStatusListScreen: undefined;
   DeviceHistoryScreen: undefined;
   HomeScreen: {

@@ -131,6 +131,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = memo(({ location, date, temp
   }
 
   return (
+    
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>

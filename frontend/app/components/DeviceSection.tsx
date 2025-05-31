@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import { COLORS, FONTSIZE } from '../constants';
 import DeviceCard from './DeviceCard';
 import { Device, DeviceState } from '../types';
@@ -10,6 +10,7 @@ const DeviceSection = memo(() => {
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const isSetupRef = useRef(false);
@@ -31,6 +32,12 @@ const DeviceSection = memo(() => {
       setLoading(false);
     }
   }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchDevices();
+    setRefreshing(false);
+  };
 
   const handleDeviceToggle = useCallback(async(id: number, newState: DeviceState) => {
     try {
@@ -164,6 +171,7 @@ const DeviceSection = memo(() => {
             style={styles.scrollView}
             showsVerticalScrollIndicator={false}
             nestedScrollEnabled={true}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.yellow]}/>}
           >
             <DeviceAllCard 
               devices={devices}

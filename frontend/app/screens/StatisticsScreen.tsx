@@ -10,29 +10,25 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
-import { RootStackParamList } from '../types'; // Import the centralized type
-import { COLORS } from '../constants';
+import { RootStackParamList } from '../types';
+import { COLORS, FONTSIZE } from '../constants';
 
-const deviceActivities = [
+const statistics = [
   {
     title: 'Operational Status',
-    description: 'Music system working to last 5 hour in kids room.',
-    icon: 'musical-notes-outline',
+    description: 'View the current working state of all smart devices.',
+    icon: 'time-outline',
     screen: 'DeviceStatusListScreen'
   },
   {
-    room: 'Kitchen',
-    description: 'Hey, did you forget turn off the smart lamp?',
-    icon: 'restaurant-outline',
-    time: 'Yesterday',
+    title: 'History Statistics',
+    description: 'Check detailed records and summaries of past device activities.',
+    icon: 'pulse-outline',
     screen: 'DeviceHistoryScreen'
   }
 ];
 
-// type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
-
-const ProfileScreen = () => {
-  // Define navigation with a more specific type
+const StatisticsScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   // Helper function to handle navigation with proper type checking
@@ -45,30 +41,27 @@ const ProfileScreen = () => {
         navigation.navigate('DeviceHistoryScreen');
         break;
       default:
-        // Handle any other cases
         console.log('Unknown screen:', screenName);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Device activities */}
       <ScrollView style={styles.activitiesContainer}>
-        {deviceActivities.map((activity, index) => (
+        {statistics.map((activity, index) => (
           <TouchableOpacity 
             key={index} 
             style={styles.activityItem}
             onPress={() => navigateToScreen(activity.screen)}
           >
             <View style={styles.activityIconContainer}>
-              <Ionicons name="close-circle" size={20} color="#888" />
+              <Ionicons name={activity.icon as any} size={30} color={COLORS.gray} />
             </View>
             <View style={styles.activityTextContainer}>
-              <Text style={styles.activityRoom}>{activity.title}</Text>
-              <Text style={styles.activityDescription}>
+              <Text style={styles.title}>{activity.title}</Text>
+              <Text style={styles.description}>
                 {activity.description}
               </Text>
-              <Text style={styles.activityTime}>{activity.time}</Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -85,19 +78,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
 
-  profileHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: 'white'
-  },
-
-  profileTitle: {
-    fontSize: 18,
-    fontWeight: 'bold'
-  },
-
   activitiesContainer: {
     marginTop: 10,
   },
@@ -105,34 +85,40 @@ const styles = StyleSheet.create({
   activityItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 15,
-    marginVertical: 5,
+    backgroundColor: COLORS.white,
+    paddingVertical: 20,
+    paddingHorizontal: 15,
+    marginVertical: 8,
     marginHorizontal: 10,
     
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: COLORS.lightGray,
+    shadowColor: COLORS.gray,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 10,
   },
+
   activityIconContainer: {
     marginRight: 15
   },
+
   activityTextContainer: {
     flex: 1
   },
-  activityRoom: {
+
+  title: {
     fontWeight: 'bold',
-    fontSize: 16
+    fontSize: FONTSIZE.large
   },
-  activityDescription: {
-    color: '#666',
+
+  description: {
+    color: COLORS.gray,
     marginTop: 5
   },
-  activityTime: {
-    color: '#999',
-    marginTop: 5,
-    fontSize: 12
-  }
 });
 
-export default ProfileScreen;
+export default StatisticsScreen;
