@@ -10,7 +10,7 @@ class AIProvider {
   private socket: Socket;
 
   constructor(){
-    this.socket = io(process.env.AI_SERVER_URL);
+    this.socket = io(process.env.AI_SERVER_URI);
 
     connectAISocket.onConnectAI(this.socket);
   }

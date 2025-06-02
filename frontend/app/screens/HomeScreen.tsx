@@ -8,7 +8,7 @@ import Header from '../components/Header';
 import { COLORS } from '../constants';
 import { HomeScreenProps } from '../types';
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ time, location, date }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ time, location, date, tempHumid }) => {
   return (
     <LinearGradient 
       colors={COLORS.yellowGradient}
@@ -23,6 +23,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ time, location, date }) => {
           <WeatherWidget 
             location={location}
             date={date}
+            tempHumid={tempHumid}
           />
           <DeviceSection />
         </ScrollView>

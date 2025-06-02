@@ -2,12 +2,15 @@ export const COLORS = {
   white: '#FFFFFF',
 
   black: '#000000',
+  darkGray: '#686868',
   gray: '#878787',
   lightGray: '#D7D9E6',
+  softGray: '#d7d9e676',
   
   darkGreen: '#4B8F8D',
   green: '#74B6B4',
   lightGreen: '#9FC9C4',
+  brightGreen: '#75A47F',
 
   yellowGradient: ['#FEF4EB', '#FFFFFF'] as readonly [string, string], 
   yellow: '#EBB970',
@@ -16,13 +19,21 @@ export const COLORS = {
   red: '#F55050',
 };
 
+export const LIST_COLORS = [
+  '#c599b6',
+  '#fcdc94',
+  '#8eaccd',
+  '#c8cfa0',
+];
+
 export const FONTSIZE = {
-  xLarge: 38,
+  xLarge: 37,
   huge: 25,
   large: 20,
   medium: 18,
   small: 15,
   tiny: 12,
+  micro: 10,
 };
 
 export const TEMPERATURE_LEVELS = [

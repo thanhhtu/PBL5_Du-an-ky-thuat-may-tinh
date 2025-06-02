@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import { COLORS, FONTSIZE } from '../constants';
 import DeviceCard from './DeviceCard';
 import { Device, DeviceState } from '../types';
 import deviceService from '../services/device.service';
 import DeviceAllCard from './DeviceAllCard';
 
-const DeviceSection = () => {
+const DeviceSection = memo(() => {
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+  const isSetupRef = useRef(false);
 
-  // Fetch devices from API
-  const fetchDevices = async() => {
+  const fetchDevices = useCallback(async() => {
     try{
       setLoading(true);
       
@@ -28,14 +31,19 @@ const DeviceSection = () => {
     }finally{
       setLoading(false);
     }
+  }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchDevices();
+    setRefreshing(false);
   };
 
-  // Toggle device sate
-  const handleDeviceToggle = async(id: number, newState: DeviceState) => {
+  const handleDeviceToggle = useCallback(async(id: number, newState: DeviceState) => {
     try {
-      // // Update UI immediately
-      // setDevices((preDevices) => 
-      //   preDevices.map((device) => 
+      // // Optimistic update
+      // setDevices((prevDevices) => 
+      //   prevDevices.map((device) => 
       //     device.id === id 
       //     ? {...device, state: newState}
       //     : device
@@ -43,25 +51,25 @@ const DeviceSection = () => {
       // );
 
       await deviceService.updateDeviceState(id, newState);
-
       console.log(`Device ${id} toggled to ${newState}`);
     } catch(error) {
+      console.error('Error toggling device:', error);
+      
+      fetchDevices();
+      
       if (error instanceof Error) {
-        setError(error.message || 'Network error when fetching devices');
+        setError(error.message || 'Network error when updating device');
       } else {
         setError('An unknown error occurred');
       }
-
-      fetchDevices();
     }
-  };
+  }, [fetchDevices]);
 
-  // Toggle device sate
-  const handleAllDevicesToggle = async(newState: DeviceState) => {
+  const handleAllDevicesToggle = useCallback(async(newState: DeviceState) => {
     try {
-      // // Update UI immediately
-      // setDevices((preDevices) => 
-      //   preDevices.map((device) => 
+      // // Optimistic update
+      // setDevices((prevDevices) => 
+      //   prevDevices.map((device) => 
       //     device.id === id 
       //     ? {...device, state: newState}
       //     : device
@@ -69,35 +77,59 @@ const DeviceSection = () => {
       // );
 
       await deviceService.updateAllDeviceState(newState);
-
       console.log(`All devices toggled to ${newState}`);
     } catch(error) {
+      console.error('Error toggling all devices:', error);
+      
+      fetchDevices();
+      
       if (error instanceof Error) {
-        setError(error.message || 'Network error when fetching devices');
+        setError(error.message || 'Network error when updating devices');
       } else {
         setError('An unknown error occurred');
       }
-
-      fetchDevices();
     }
-  };
+  }, [fetchDevices]);
 
+  // Setup socket listener chỉ MỘT LẦN
   useEffect(() => {
-    fetchDevices();
+    if (!isSetupRef.current) {
+      console.log('DeviceSection: Setting up socket listener once...');
+      
+      fetchDevices();
 
-    const unsubscribe = deviceService.onDeviceStateChange((updatedDevice) => {
-      setDevices((prevDevices) => 
-        prevDevices.map((device) => 
-          device.id === updatedDevice.id
-          ? updatedDevice
-          : device
-        )
-      );
-    });
+      unsubscribeRef.current = deviceService.onDeviceStateChange((updatedDevice) => {
+        console.log('DeviceSection received socket update:', updatedDevice);
+        setDevices((prevDevices) => 
+          prevDevices.map((device) => 
+            device.id === updatedDevice.id
+            ? updatedDevice
+            : device
+          )
+        );
+      });
 
-    // Cleanup
+      isSetupRef.current = true;
+    }
+
+    // Cleanup chỉ khi component thực sự unmount
     return () => {
-      unsubscribe();
+      if (unsubscribeRef.current && !isSetupRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+    };
+  }, []); // Empty dependencies
+
+  // Final cleanup
+  useEffect(() => {
+    return () => {
+      if (unsubscribeRef.current) {
+        console.log('DeviceSection: Final cleanup...');
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+        isSetupRef.current = false;
+      }
     };
   }, []);
 
@@ -139,6 +171,7 @@ const DeviceSection = () => {
             style={styles.scrollView}
             showsVerticalScrollIndicator={false}
             nestedScrollEnabled={true}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.gray]}/>}
           >
             <DeviceAllCard 
               devices={devices}
@@ -159,7 +192,7 @@ const DeviceSection = () => {
       )}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

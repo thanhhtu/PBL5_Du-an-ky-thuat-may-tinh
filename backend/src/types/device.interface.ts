@@ -25,6 +25,6 @@ export interface IAudioDevice {
 }
 
 export interface ITempHumid {
-  temperature: string;
-  humidity: string;
+  temperature: string | undefined;
+  humidity: string | undefined;
 }

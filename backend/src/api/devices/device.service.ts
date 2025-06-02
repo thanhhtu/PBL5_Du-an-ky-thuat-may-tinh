@@ -8,7 +8,7 @@ import { DeviceLog } from '../../models/entities/DeviceLog';
 import deviceLogRepo from '../../models/repositories/deviceLog.repo';
 import { DeviceState } from '../../types/device.enum';
 import deviceSocket from '../../socket/device.socket';
-import deviceIot from '../../iot/device.iot';
+import httpIot from '../../iot/http.iot';
 
 class DeviceService {
   deviceInfo(device: Device): IDevice {
@@ -81,11 +81,19 @@ class DeviceService {
     });
   }
 
-  async getDeviceLogs(id: number): Promise<IDeviceLog[]> {
+  async getLogsByDeviceId(id: number): Promise<IDeviceLog[]> {
     return errorHandlerFunc(async () => {
       await this.getDeviceById(id);
 
-      const logs = await deviceLogRepo.getDeviceLogs(id);
+      const logs = await deviceLogRepo.getLogsByDeviceId(id);
+
+      return await Promise.all(logs.map((log) => this.deviceLogInfo(log)));
+    });
+  }
+
+  async getAllLogs(): Promise<IDeviceLog[]> {
+    return errorHandlerFunc(async () => {
+      const logs = await deviceLogRepo.getAllLogs();
 
       return await Promise.all(logs.map((log) => this.deviceLogInfo(log)));
     });
@@ -103,7 +111,7 @@ class DeviceService {
       await deviceSocket.emitDeviceStateChange(updatedDevice);
 
       // iot
-      await deviceIot.controlDevice(id, state);
+      await httpIot.controlDevice(id, state);
 
       const deviceInfo = this.deviceInfo(updatedDevice);
       return deviceInfo;
@@ -121,14 +129,12 @@ class DeviceService {
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
         // iot
-        await deviceIot.controlDevice(updatedDevice.id, state);
+        httpIot.controlDevice(updatedDevice.id, state);
       }));
 
       const devicesInfo: IDevice[] = await Promise.all(
         updatedDevices.map((device) => this.deviceInfo(device))
       );
-
-      console.log('Device - Updated devices:', devicesInfo);
 
       return devicesInfo;
     });

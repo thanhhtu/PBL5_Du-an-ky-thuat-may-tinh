@@ -10,12 +10,14 @@ export interface HeaderProps {
 export interface WeatherWidgetProps {
   location: string,
   date: string
+  tempHumid: ITempHumid
 }
 
 export interface HomeScreenProps {
   time: string,
   location: string,
   date: string,
+  tempHumid: ITempHumid
 }
 
 export interface BottomTabBarProps {
@@ -40,6 +42,10 @@ export interface Device {
   image: string;
   state: DeviceState;
   createdAt: string
+}
+
+export interface DeviceWithLog extends Device {
+  latestLog?: DeviceLog;
 }
 
 export interface DeviceCardProps {
@@ -88,13 +94,17 @@ export enum DeviceAction {
 // Navigation Types
 export type RootStackParamList = {
   Menu: undefined;
-  ProfileScreen: undefined;
-  ProfileDetailScreen: undefined;
-  DeviceListScreen: undefined;
+  StatisticsScreen: undefined;
+  DeviceStatusListScreen: undefined;
   DeviceHistoryScreen: undefined;
   HomeScreen: {
     time: string;
     location: string;
     date: string;
   };
+}
+
+export interface ITempHumid {
+  temperature: string;
+  humidity: string;
 }

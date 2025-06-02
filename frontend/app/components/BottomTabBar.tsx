@@ -95,8 +95,8 @@ const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onTabChange }) =
         disabled={isRecording}
       >
         <Image
-          source={require('../assets/icons/profile.png')}
-          style={[styles.iconProfile, activeTab === 1 && !isRecording && styles.activeIcon, isRecording && styles.disabledIcon]}
+          source={require('../assets/icons/bars.png')}
+          style={[styles.iconBar, activeTab === 1 && !isRecording && styles.activeIcon, isRecording && styles.disabledIcon]}
         />
       </TouchableOpacity>
     </View>
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
 
-  iconProfile: {
+  iconBar: {
     width: 26,
     height: 29,
     opacity: 0.6,
