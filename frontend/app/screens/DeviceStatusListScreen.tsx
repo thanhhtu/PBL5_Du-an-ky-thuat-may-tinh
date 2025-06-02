@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { Device, DeviceLog } from '../types';
+import { Device, DeviceLog, DeviceWithLog } from '../types';
 import deviceService from '../services/device.service';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTSIZE } from '../constants';
@@ -21,25 +21,23 @@ type DeviceStatusListScreenRouteProp = RouteProp<
   'DeviceStatusListScreen'
 >;
 
-interface DeviceWithLog extends Device {
-  latestLog?: DeviceLog;
-}
-
 const DeviceStatusListScreen = () => {
-  const route = useRoute<DeviceStatusListScreenRouteProp>();
+  useRoute<DeviceStatusListScreenRouteProp>();
   const navigation = useNavigation();
 
   const [devices, setDevices] = useState<DeviceWithLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const fetchDevicesWithLogs = async () => {
+  const fetchDevicesWithLogs = useCallback(async () => {
     try {
-      const fetchedDevices = await deviceService.getAllDevices();
+      setLoading(true);
 
-      const devicesWithLogs = await Promise.all(
-        fetchedDevices.map(async (device) => {
+      const devices = await deviceService.getAllDevices();
+
+      const devicesWithLogs: DeviceWithLog[] = await Promise.all(
+        devices.map(async (device) => {
           try {
             const logs = await deviceService.getLogsByDeviceId(device.id);
             return {
@@ -47,8 +45,10 @@ const DeviceStatusListScreen = () => {
               latestLog: logs.length > 0 ? logs[0] : undefined
             };
           } catch (logError) {
-            console.warn(`Could not fetch log for device ${device.id}:`, logError);
-            return { ...device, latestLog: undefined };
+            return { 
+              ...device, 
+              latestLog: undefined 
+            };
           }
         })
       );
@@ -64,16 +64,10 @@ const DeviceStatusListScreen = () => {
     }finally{
       setLoading(false);
     }
-  };
-
+  }, []);
+  
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      await fetchDevicesWithLogs();
-      setLoading(false);
-    };
-
-    loadData();
+    fetchDevicesWithLogs();
   }, []);
 
   const onRefresh = async () => {
@@ -84,6 +78,7 @@ const DeviceStatusListScreen = () => {
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
+    
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
 
@@ -91,7 +86,7 @@ const DeviceStatusListScreen = () => {
     if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hours ago`;
 
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString('vi-VN', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -108,39 +103,50 @@ const DeviceStatusListScreen = () => {
     return state === 'on' ? COLORS.brightGreen : COLORS.red;
   };
 
-  if (loading || error) {
+  const Header = () => {
+    return (
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name='arrow-back' size={40} color={COLORS.darkGreen} />
+        </TouchableOpacity>
+
+        <Text style={styles.headerTitle}>Operational Status</Text>
+      </View>
+    );
+  };
+
+  if (loading) {
     return (
       <LinearGradient
         colors={COLORS.yellowGradient as readonly [string, string]}
         style={styles.gradientContainer}
       >
         <SafeAreaView style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Ionicons name='arrow-back' size={40} color={COLORS.darkGreen} />
-            </TouchableOpacity>
+          <Header/>
 
-            <Text style={styles.deviceCount}>Operation Status of {devices.length} devices</Text>
+          <View style={[styles.container, styles.centered]}>
+            <ActivityIndicator size='large' color={COLORS.yellow} />
           </View>
+        </SafeAreaView>
+        </LinearGradient>
+    );
+  }
 
-          {loading && (
-              <View style={[styles.container, styles.centered]}>
-                <ActivityIndicator size='large' color={COLORS.yellow} />
-              </View>
-            )}
+  if (error) {
+    return (
+      <LinearGradient
+        colors={COLORS.yellowGradient as readonly [string, string]}
+        style={styles.gradientContainer}
+      >
+        <SafeAreaView style={styles.container}>
+          <Header/>
 
-          {error && (
-            <View style={[styles.container, styles.centered]}>
+          <View style={[styles.container, styles.centered]}>
               <Text style={styles.errorText}>{error}</Text>
-              <TouchableOpacity style={styles.retryButton} onPress={() => {
-                setError(null);
-                setLoading(true);
-                fetchDevicesWithLogs().finally(() => setLoading(false));
-              }}>
+              <TouchableOpacity style={styles.retryButton} onPress={fetchDevicesWithLogs}>
                 <Text style={styles.retryText}>Retry</Text>
               </TouchableOpacity>
             </View>
-          )}
         </SafeAreaView>
         </LinearGradient>
     );
@@ -152,17 +158,11 @@ const DeviceStatusListScreen = () => {
       style={styles.gradientContainer}
     >
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name='arrow-back' size={40} color={COLORS.darkGreen} />
-          </TouchableOpacity>
-
-          <Text style={styles.deviceCount}>Status of {devices.length} devices</Text>
-        </View>
+        <Header/>
 
         <ScrollView
           style={styles.scrollView}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.yellow]} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.gray]} />}
           showsVerticalScrollIndicator={false}
         >
           {devices.map((device) => (
@@ -190,7 +190,7 @@ const DeviceStatusListScreen = () => {
                   </View>
                   <View style={styles.logRow}>
                     <Ionicons name='globe-outline' style={styles.icon}/>
-                    <Text style={styles.logText}>IP: {device.latestLog.ipAddress}</Text>
+                    <Text style={styles.logText}>IP: {device.latestLog.ipAddress.slice(7)}</Text>
                   </View>
                   <View style={styles.logRow}>
                     <Ionicons name='settings-outline' style={styles.icon}/>
@@ -238,6 +238,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
 
+  scrollView: { 
+    flex: 1, 
+  },
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -250,20 +254,17 @@ const styles = StyleSheet.create({
     marginLeft: -8,
   },
 
-  deviceCount: { 
-    fontSize: FONTSIZE.medium,
+  headerTitle: { 
+    fontSize: FONTSIZE.huge,
     color: COLORS.yellow,
     fontWeight: 'bold',
-  },
-
-  scrollView: { 
-    flex: 1, 
   },
 
   centered: {
     justifyContent: 'center',
     alignItems: 'center',
     height: 200,
+    marginBottom: 100,
   },
 
   errorText: {
@@ -286,7 +287,7 @@ const styles = StyleSheet.create({
 
   deviceCard: {
     backgroundColor: COLORS.white,
-    padding: 14,
+    padding: 17,
     marginBottom: 15,
     borderRadius: 16,
     borderWidth: 1,
@@ -349,7 +350,7 @@ const styles = StyleSheet.create({
 
   logText: {
     color: COLORS.gray,
-    fontSize: FONTSIZE.small,
+    fontSize: FONTSIZE.tiny,
     paddingTop: 5,
     marginLeft: 25,
   },

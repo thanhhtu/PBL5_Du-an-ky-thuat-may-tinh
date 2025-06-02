@@ -19,6 +19,8 @@ route.patch('/all/state',
   deviceController.updateAllDevicesState
 );
 
+route.get('/all/logs', deviceController.getAllLogs);
+
 route.route('/:id')
   .get(
     urlValidateMiddleware.id, 

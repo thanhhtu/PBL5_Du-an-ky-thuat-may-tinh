@@ -15,9 +15,7 @@ class WeatherContentProvider {
   getDate(): string {
     const now = new Date();
     const day = String(now.getDate()).padStart(2, '0');
-    const month = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(
-      now
-    );
+    const month = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(now);
     const year = now.getFullYear();
     return `${day} ${month} ${year}`;
   }

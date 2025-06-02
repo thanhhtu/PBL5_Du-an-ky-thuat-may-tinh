@@ -72,6 +72,19 @@ class DeviceController {
     }
   }
 
+  async getAllLogs(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const logs = await deviceService.getAllLogs();
+
+      res.status(StatusCodes.OK).json({
+        success: true,
+        data: logs,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async updateDeviceState(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const id = Number(req.params.id);

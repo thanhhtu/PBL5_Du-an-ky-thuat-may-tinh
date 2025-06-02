@@ -123,6 +123,21 @@ class DeviceService {
     }
   }
 
+  async getAllLogs(): Promise<DeviceLog[]> {
+    try {
+      const response = await this.api.get(`/devices/all/logs`);
+      
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Failed to fetch all logs');
+      }
+
+      return response.data.data;
+    } catch (error) {
+      console.error(`Error fetching all logs:`, error);
+      throw error;
+    }
+  }
+
   async getLogsByDeviceId(id: number): Promise<DeviceLog[]> {
     try {
       const response = await this.api.get(`/devices/${id}/logs`);

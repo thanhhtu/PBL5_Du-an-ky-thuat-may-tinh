@@ -171,7 +171,7 @@ const DeviceSection = memo(() => {
             style={styles.scrollView}
             showsVerticalScrollIndicator={false}
             nestedScrollEnabled={true}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.yellow]}/>}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.gray]}/>}
           >
             <DeviceAllCard 
               devices={devices}

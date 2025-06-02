@@ -42,6 +42,15 @@ class DeviceLogRepo {
       });
     });
   }
+
+  async getAllLogs(): Promise<DeviceLog[]> {
+    return errorHandlerFunc(async () => {
+      return await this.deviceLogRepo.find({
+        relations: ['device'],
+        order: { timestamp: 'DESC' },
+      });
+    });
+  }
 }
 
 export default new DeviceLogRepo();

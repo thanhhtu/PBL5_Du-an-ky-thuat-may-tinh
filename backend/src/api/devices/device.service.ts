@@ -91,6 +91,14 @@ class DeviceService {
     });
   }
 
+  async getAllLogs(): Promise<IDeviceLog[]> {
+    return errorHandlerFunc(async () => {
+      const logs = await deviceLogRepo.getAllLogs();
+
+      return await Promise.all(logs.map((log) => this.deviceLogInfo(log)));
+    });
+  }
+
   async updateDeviceState(id: number, state: DeviceState, ipAddress: string | null): Promise<IDevice> {
     return errorHandlerFunc(async () => {
       await this.getDeviceById(id);
@@ -102,8 +110,8 @@ class DeviceService {
 
       await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-      // // iot
-      // await httpIot.controlDevice(id, state);
+      // iot
+      await httpIot.controlDevice(id, state);
 
       const deviceInfo = this.deviceInfo(updatedDevice);
       return deviceInfo;
@@ -120,8 +128,8 @@ class DeviceService {
       await Promise.all(updatedDevices.map(async (updatedDevice) => {
         await deviceSocket.emitDeviceStateChange(updatedDevice);
 
-        // // iotDevice state changed receive
-        // httpIot.controlDevice(updatedDevice.id, state);
+        // iot
+        httpIot.controlDevice(updatedDevice.id, state);
       }));
 
       const devicesInfo: IDevice[] = await Promise.all(

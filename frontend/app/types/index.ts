@@ -44,6 +44,10 @@ export interface Device {
   createdAt: string
 }
 
+export interface DeviceWithLog extends Device {
+  latestLog?: DeviceLog;
+}
+
 export interface DeviceCardProps {
   device: Device;
   onToggle: (id: number, newState: DeviceState) => void;
